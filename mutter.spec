@@ -73,6 +73,9 @@ Patch12:       0002-kms-device-Disable-modifiers-when-DRM_CAP_ADDFB2_MOD.patch
 # GNOME Performance: Dynamic triple/double buffering (v4)
 Patch100:      1441.patch
 
+# GNOME Performance: compositor: Use native GL mipmapping instead of MetaTextureTower
+Patch101:      1877.patch
+
 BuildRequires: pkgconfig(gobject-introspection-1.0) >= 1.41.0
 BuildRequires: pkgconfig(sm)
 BuildRequires: pkgconfig(libwacom)
