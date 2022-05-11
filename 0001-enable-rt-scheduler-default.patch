@@ -1,0 +1,22 @@
+From 5089c8cc71286c08056f6d75d2ae497e11a4b9b2 Mon Sep 17 00:00:00 2001
+From: Ernesto Castellotti <mail@ernestocastellotti.it>
+Date: Wed, 11 May 2022 20:45:05 +0200
+Subject: [PATCH] Enable RT_SCHEDULER by default
+
+---
+ src/backends/meta-settings.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/backends/meta-settings.c b/src/backends/meta-settings.c
+index 2826ff98f9..e9280e185c 100644
+--- a/src/backends/meta-settings.c
++++ b/src/backends/meta-settings.c
+@@ -275,7 +275,7 @@ experimental_features_handler (GVariant *features_variant,
+   MetaSettings *settings = data;
+   GVariantIter features_iter;
+   char *feature_str;
+-  MetaExperimentalFeature features = META_EXPERIMENTAL_FEATURE_NONE;
++  MetaExperimentalFeature features = META_EXPERIMENTAL_FEATURE_RT_SCHEDULER;
+ 
+   if (settings->experimental_features_overridden)
+     {
