@@ -10,7 +10,7 @@
 
 Name:          mutter
 Version:       42.0
-Release:       1000.gnomeperformance
+Release:       1001.gnomeperformance
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -69,6 +69,9 @@ Patch10:       2366.patch
 # https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2359
 Patch11:       0001-kms-impl-device-Add-addfb2_modifiers-to-MetaKmsDevic.patch
 Patch12:       0002-kms-device-Disable-modifiers-when-DRM_CAP_ADDFB2_MOD.patch
+
+# GNOME Performance: Dynamic triple/double buffering (v4)
+Patch100:      1441.patch
 
 BuildRequires: pkgconfig(gobject-introspection-1.0) >= 1.41.0
 BuildRequires: pkgconfig(sm)
