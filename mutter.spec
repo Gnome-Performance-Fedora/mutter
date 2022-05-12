@@ -10,7 +10,7 @@
 
 Name:          mutter
 Version:       42.0
-Release:       1002.gnomeperformance
+Release:       1003.gnomeperformance
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -78,6 +78,9 @@ Patch101:      1877.patch
 
 # GNOME Performance: Enable RT_SCHEDULER by default
 Patch102:      0001-enable-rt-scheduler-default.patch
+
+# GNOME Performance: Dynamic damage history
+Patch104:      1546.patch
 
 BuildRequires: pkgconfig(gobject-introspection-1.0) >= 1.41.0
 BuildRequires: pkgconfig(sm)
