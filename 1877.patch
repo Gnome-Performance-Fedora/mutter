@@ -1,11 +1,23 @@
-Author: Daniel van Vugt <daniel.van.vugt@canonical.com>
-Source: https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/1877
-Editor: Sung Mingi <FiestaLake@protonmail.com>
-Commit: 5f62dc8b585bbb7fe83b65ef56395a15c73e15af
-Last Updated: 04/01/22 (Mutter 42.0-1)
+From fd09d79b92ca22f8bc6891a4549dee4d0018aca4 Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Tue, 1 Jun 2021 23:50:07 +0800
+Subject: [PATCH 1/3] compositor: Return more details from
+ meta_actor_painting_untransformed
+
+This adds x_scale and y_scale information, as well as simplifying the
+parameters.
+---
+ src/compositor/clutter-utils.c           | 21 +++++++++++----------
+ src/compositor/clutter-utils.h           | 11 +++++++----
+ src/compositor/meta-background-content.c |  2 +-
+ src/compositor/meta-cullable.c           |  2 +-
+ src/compositor/meta-shaped-texture.c     |  2 +-
+ src/compositor/meta-surface-actor.c      |  2 +-
+ src/compositor/meta-window-group.c       |  7 +++++--
+ 7 files changed, 27 insertions(+), 20 deletions(-)
 
 diff --git a/src/compositor/clutter-utils.c b/src/compositor/clutter-utils.c
-index 86d788562..3c7165f1e 100644
+index 86d788562e..3c7165f1ef 100644
 --- a/src/compositor/clutter-utils.c
 +++ b/src/compositor/clutter-utils.c
 @@ -69,8 +69,7 @@ gboolean
@@ -64,7 +76,7 @@ index 86d788562..3c7165f1e 100644
  }
  
 diff --git a/src/compositor/clutter-utils.h b/src/compositor/clutter-utils.h
-index 8ed0e2a4d..039e61a61 100644
+index 8ed0e2a4d1..039e61a619 100644
 --- a/src/compositor/clutter-utils.h
 +++ b/src/compositor/clutter-utils.h
 @@ -23,18 +23,21 @@
@@ -94,7 +106,7 @@ index 8ed0e2a4d..039e61a61 100644
  
  #endif /* __META_CLUTTER_UTILS_H__ */
 diff --git a/src/compositor/meta-background-content.c b/src/compositor/meta-background-content.c
-index 49f5885ca..93de521d0 100644
+index 49f5885ca7..93de521d05 100644
 --- a/src/compositor/meta-background-content.c
 +++ b/src/compositor/meta-background-content.c
 @@ -561,7 +561,7 @@ setup_pipeline (MetaBackgroundContent *self,
@@ -107,7 +119,7 @@ index 49f5885ca..93de521d0 100644
        min_filter = COGL_PIPELINE_FILTER_NEAREST;
        mag_filter = COGL_PIPELINE_FILTER_NEAREST;
 diff --git a/src/compositor/meta-cullable.c b/src/compositor/meta-cullable.c
-index 6f38c5e47..e306c56e2 100644
+index 6f38c5e47c..e306c56e28 100644
 --- a/src/compositor/meta-cullable.c
 +++ b/src/compositor/meta-cullable.c
 @@ -175,7 +175,7 @@ meta_cullable_default_is_untransformed (MetaCullable *cullable)
@@ -120,7 +132,82 @@ index 6f38c5e47..e306c56e2 100644
  
  static void
 diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
-index fd3dc73fc..9d94bcbb0 100644
+index 34fec6852a..a74f50603c 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -712,7 +712,7 @@ do_paint_content (MetaShapedTexture   *stex,
+   if (meta_actor_painting_untransformed (framebuffer,
+                                          dst_width, dst_height,
+                                          sample_width, sample_height,
+-                                         NULL, NULL))
++                                         NULL))
+     filter = COGL_PIPELINE_FILTER_NEAREST;
+   else
+     filter = COGL_PIPELINE_FILTER_LINEAR;
+diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
+index c2bf6696a2..fcd94b86d3 100644
+--- a/src/compositor/meta-surface-actor.c
++++ b/src/compositor/meta-surface-actor.c
+@@ -331,7 +331,7 @@ meta_surface_actor_is_untransformed (MetaCullable *cullable)
+   return meta_actor_vertices_are_untransformed (verts,
+                                                 width * geometry_scale,
+                                                 height * geometry_scale,
+-                                                NULL, NULL);
++                                                NULL);
+ }
+ 
+ static void
+diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
+index 16ff2db097..c6af609aea 100644
+--- a/src/compositor/meta-window-group.c
++++ b/src/compositor/meta-window-group.c
+@@ -92,6 +92,7 @@ meta_window_group_paint (ClutterActor        *actor,
+     {
+       CoglFramebuffer *fb;
+       ClutterStageView *view;
++      MetaTransforms trans;
+ 
+       fb = clutter_paint_context_get_framebuffer (paint_context);
+       view = clutter_paint_context_get_stage_view (paint_context);
+@@ -102,13 +103,15 @@ meta_window_group_paint (ClutterActor        *actor,
+                                               screen_height,
+                                               screen_width,
+                                               screen_height,
+-                                              &paint_x_origin,
+-                                              &paint_y_origin) ||
++                                              &trans) ||
+           !meta_cullable_is_untransformed (META_CULLABLE (actor)))
+         {
+           parent_actor_class->paint (actor, paint_context);
+           return;
+         }
++
++      paint_x_origin = trans.x_origin;
++      paint_y_origin = trans.y_origin;
+     }
+   else
+     {
+-- 
+GitLab
+
+
+From 58beac8c6cf6365eb5bffd2be28412f05e90dbe8 Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Tue, 1 Jun 2021 18:55:12 +0800
+Subject: [PATCH 2/3] shaped-texture: Stop using MetaTextureTower and use GL
+ mipmapping instead
+
+But only in cases where it's needed; when we are displaying a texture at
+less than half its native resolution. We also keep the existing
+optimization that avoids mipmapping of textures while they're animating.
+
+Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/849
+---
+ src/compositor/meta-shaped-texture.c | 187 +++++++++++++++++++++------
+ 1 file changed, 147 insertions(+), 40 deletions(-)
+
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index a74f50603c..222095587a 100644
 --- a/src/compositor/meta-shaped-texture.c
 +++ b/src/compositor/meta-shaped-texture.c
 @@ -41,7 +41,6 @@
@@ -140,9 +227,9 @@ index fd3dc73fc..9d94bcbb0 100644
    CoglTexture *texture;
    CoglTexture *mask_texture;
    CoglSnippet *snippet;
-@@ -92,6 +89,11 @@ struct _MetaShapedTexture
-   CoglPipeline *masked_pipeline;
+@@ -96,6 +93,11 @@ struct _MetaShapedTexture
    CoglPipeline *unblended_pipeline;
+   CoglPipeline *unblended_tower_pipeline;
  
 +  CoglTexture *mipmap_texture;
 +  gboolean mipmap_texture_out_of_date;
@@ -152,7 +239,7 @@ index fd3dc73fc..9d94bcbb0 100644
    gboolean is_y_inverted;
  
    /* The region containing only fully opaque pixels */
-@@ -150,8 +152,6 @@ invalidate_size (MetaShapedTexture *stex)
+@@ -154,8 +156,6 @@ invalidate_size (MetaShapedTexture *stex)
  static void
  meta_shaped_texture_init (MetaShapedTexture *stex)
  {
@@ -161,8 +248,8 @@ index fd3dc73fc..9d94bcbb0 100644
    stex->buffer_scale = 1;
    stex->texture = NULL;
    stex->mask_texture = NULL;
-@@ -244,6 +244,13 @@ meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
-   g_clear_pointer (&stex->unblended_pipeline, cogl_object_unref);
+@@ -252,6 +252,13 @@ meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
+   g_clear_pointer (&stex->unblended_tower_pipeline, cogl_object_unref);
  }
  
 +static void
@@ -175,7 +262,7 @@ index fd3dc73fc..9d94bcbb0 100644
  static void
  meta_shaped_texture_dispose (GObject *object)
  {
-@@ -251,9 +258,8 @@ meta_shaped_texture_dispose (GObject *object)
+@@ -259,9 +266,8 @@ meta_shaped_texture_dispose (GObject *object)
  
    g_clear_handle_id (&stex->remipmap_timeout_id, g_source_remove);
  
@@ -187,7 +274,7 @@ index fd3dc73fc..9d94bcbb0 100644
  
    g_clear_pointer (&stex->texture, cogl_object_unref);
  
-@@ -548,13 +554,7 @@ set_cogl_texture (MetaShapedTexture *stex,
+@@ -618,13 +624,7 @@ set_cogl_texture (MetaShapedTexture *stex,
        update_size (stex);
      }
  
@@ -202,7 +289,7 @@ index fd3dc73fc..9d94bcbb0 100644
  }
  
  static gboolean
-@@ -582,11 +582,14 @@ flip_ints (int *x,
+@@ -652,11 +652,14 @@ flip_ints (int *x,
    *y = tmp;
  }
  
@@ -218,7 +305,7 @@ index fd3dc73fc..9d94bcbb0 100644
                    ClutterActorBox     *alloc,
                    uint8_t              opacity)
  {
-@@ -595,7 +598,9 @@ do_paint_content (MetaShapedTexture   *stex,
+@@ -665,7 +668,9 @@ do_paint_content (MetaShapedTexture   *stex,
    gboolean use_opaque_region;
    cairo_region_t *blended_tex_region;
    CoglContext *ctx;
@@ -229,11 +316,11 @@ index fd3dc73fc..9d94bcbb0 100644
    CoglFramebuffer *framebuffer;
    int sample_width, sample_height;
    gboolean debug_paint_opaque_region;
-@@ -642,10 +647,33 @@ do_paint_content (MetaShapedTexture   *stex,
+@@ -712,10 +717,33 @@ do_paint_content (MetaShapedTexture   *stex,
    if (meta_actor_painting_untransformed (framebuffer,
                                           dst_width, dst_height,
                                           sample_width, sample_height,
--                                         NULL, NULL))
+-                                         NULL))
 -    filter = COGL_PIPELINE_FILTER_NEAREST;
 +                                         &transforms))
 +    {
@@ -266,18 +353,18 @@ index fd3dc73fc..9d94bcbb0 100644
  
    ctx = clutter_backend_get_cogl_context (clutter_get_default_backend ());
  
-@@ -707,7 +735,7 @@ do_paint_content (MetaShapedTexture   *stex,
+@@ -777,7 +805,7 @@ do_paint_content (MetaShapedTexture   *stex,
  
-           opaque_pipeline = get_unblended_pipeline (stex, ctx);
+           opaque_pipeline = get_unblended_pipeline (stex, ctx, paint_tex);
            cogl_pipeline_set_layer_texture (opaque_pipeline, 0, paint_tex);
 -          cogl_pipeline_set_layer_filters (opaque_pipeline, 0, filter, filter);
 +          cogl_pipeline_set_layer_filters (opaque_pipeline, 0, min_filter, mag_filter);
  
            n_rects = cairo_region_num_rectangles (region);
            for (i = 0; i < n_rects; i++)
-@@ -755,11 +783,11 @@ do_paint_content (MetaShapedTexture   *stex,
+@@ -825,11 +853,11 @@ do_paint_content (MetaShapedTexture   *stex,
          {
-           blended_pipeline = get_masked_pipeline (stex, ctx);
+           blended_pipeline = get_masked_pipeline (stex, ctx, paint_tex);
            cogl_pipeline_set_layer_texture (blended_pipeline, 1, stex->mask_texture);
 -          cogl_pipeline_set_layer_filters (blended_pipeline, 1, filter, filter);
 +          cogl_pipeline_set_layer_filters (blended_pipeline, 1, min_filter, mag_filter);
@@ -289,7 +376,7 @@ index fd3dc73fc..9d94bcbb0 100644
  
        CoglColor color;
        cogl_color_init_from_4ub (&color, opacity, opacity, opacity, opacity);
-@@ -824,6 +852,94 @@ do_paint_content (MetaShapedTexture   *stex,
+@@ -894,6 +922,94 @@ do_paint_content (MetaShapedTexture   *stex,
    g_clear_pointer (&blended_tex_region, cairo_region_destroy);
  }
  
@@ -384,7 +471,7 @@ index fd3dc73fc..9d94bcbb0 100644
  static CoglTexture *
  select_texture_for_paint (MetaShapedTexture   *stex,
                            ClutterPaintContext *paint_context)
-@@ -843,8 +959,8 @@ select_texture_for_paint (MetaShapedTexture   *stex,
+@@ -913,8 +1029,8 @@ select_texture_for_paint (MetaShapedTexture   *stex,
        if (age >= MIN_MIPMAP_AGE_USEC ||
            stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
          {
@@ -395,7 +482,7 @@ index fd3dc73fc..9d94bcbb0 100644
          }
      }
  
-@@ -876,7 +992,6 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
+@@ -946,7 +1062,6 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
  {
    MetaShapedTexture *stex = META_SHAPED_TEXTURE (content);
    ClutterActorBox alloc;
@@ -403,7 +490,7 @@ index fd3dc73fc..9d94bcbb0 100644
    uint8_t opacity;
  
    if (stex->clip_region && cairo_region_is_empty (stex->clip_region))
-@@ -897,14 +1012,13 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
+@@ -967,14 +1082,13 @@ meta_shaped_texture_paint_content (ClutterContent      *content,
     * Setting the texture quality to high without SGIS_generate_mipmap
     * support for TFP textures will result in fallbacks to XGetImage.
     */
@@ -420,7 +507,7 @@ index fd3dc73fc..9d94bcbb0 100644
  }
  
  static gboolean
-@@ -942,10 +1056,10 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
+@@ -1012,10 +1126,10 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
  
    if (create_mipmaps != stex->create_mipmaps)
      {
@@ -434,7 +521,7 @@ index fd3dc73fc..9d94bcbb0 100644
      }
  }
  
-@@ -1074,12 +1188,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+@@ -1144,12 +1258,7 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
                                       clip);
      }
  
@@ -448,25 +535,38 @@ index fd3dc73fc..9d94bcbb0 100644
    stex->prev_invalidation = stex->last_invalidation;
    stex->last_invalidation = g_get_monotonic_time ();
  
-diff --git a/src/compositor/meta-surface-actor.c b/src/compositor/meta-surface-actor.c
-index c2bf6696a..fcd94b86d 100644
---- a/src/compositor/meta-surface-actor.c
-+++ b/src/compositor/meta-surface-actor.c
-@@ -331,7 +331,7 @@ meta_surface_actor_is_untransformed (MetaCullable *cullable)
-   return meta_actor_vertices_are_untransformed (verts,
-                                                 width * geometry_scale,
-                                                 height * geometry_scale,
--                                                NULL, NULL);
-+                                                NULL);
+@@ -1214,8 +1323,6 @@ meta_shaped_texture_set_snippet (MetaShapedTexture *stex,
+   g_clear_pointer (&stex->snippet, cogl_object_unref);
+   if (snippet)
+     stex->snippet = cogl_object_ref (snippet);
+-
+-  meta_texture_tower_set_snippet (stex->paint_tower, snippet);
  }
  
- static void
+ /**
+-- 
+GitLab
+
+
+From 463d746d30f66925657fea8711acd6cfa5ab01d7 Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Wed, 2 Jun 2021 00:22:15 +0800
+Subject: [PATCH 3/3] compositor: Delete meta-texture-tower.* as it's unused.
+
+---
+ src/compositor/meta-texture-tower.c | 513 ----------------------------
+ src/compositor/meta-texture-tower.h |  71 ----
+ src/meson.build                     |   2 -
+ 3 files changed, 586 deletions(-)
+ delete mode 100644 src/compositor/meta-texture-tower.c
+ delete mode 100644 src/compositor/meta-texture-tower.h
+
 diff --git a/src/compositor/meta-texture-tower.c b/src/compositor/meta-texture-tower.c
 deleted file mode 100644
-index c491e4d12..000000000
+index 510e85f796..0000000000
 --- a/src/compositor/meta-texture-tower.c
 +++ /dev/null
-@@ -1,486 +0,0 @@
+@@ -1,513 +0,0 @@
 -/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 -/*
 - * MetaTextureTower
@@ -531,6 +631,7 @@ index c491e4d12..000000000
 -  CoglOffscreen *fbos[MAX_TEXTURE_LEVELS];
 -  Box invalid[MAX_TEXTURE_LEVELS];
 -  CoglPipeline *pipeline_template;
+-  CoglSnippet *snippet;
 -};
 -
 -/**
@@ -566,6 +667,7 @@ index c491e4d12..000000000
 -    cogl_object_unref (tower->pipeline_template);
 -
 -  meta_texture_tower_set_base_texture (tower, NULL);
+-  cogl_clear_object (&tower->snippet);
 -
 -  g_free (tower);
 -}
@@ -683,6 +785,28 @@ index c491e4d12..000000000
 -          tower->invalid[i].y2 = MAX (tower->invalid[i].y2, invalid.y2);
 -        }
 -    }
+-}
+-
+-void
+-meta_texture_tower_set_snippet (MetaTextureTower *tower,
+-                                CoglSnippet      *snippet)
+-{
+-  int i;
+-
+-  if (tower->snippet == snippet)
+-    return;
+-
+-  g_clear_pointer (&tower->snippet, cogl_object_unref);
+-
+-  if (snippet)
+-    tower->snippet = cogl_object_ref (snippet);
+-
+-  for (i = 1; i < tower->n_levels; i++)
+-    {
+-      cogl_clear_object (&tower->textures[i]);
+-      g_clear_object (&tower->fbos[i]);
+-    }
+-  cogl_clear_object (&tower->pipeline_template);
 -}
 -
 -/* It generally looks worse if we scale up a window texture by even a
@@ -879,6 +1003,9 @@ index c491e4d12..000000000
 -  pipeline = cogl_pipeline_copy (tower->pipeline_template);
 -  cogl_pipeline_set_layer_texture (pipeline, 0, tower->textures[level - 1]);
 -
+-  if (tower->snippet && level == 1)
+-    cogl_pipeline_add_layer_snippet (pipeline, 0, tower->snippet);
+-
 -  cogl_framebuffer_draw_textured_rectangle (fb, pipeline,
 -                                            invalid->x1, invalid->y1,
 -                                            invalid->x2, invalid->y2,
@@ -955,10 +1082,10 @@ index c491e4d12..000000000
 -}
 diff --git a/src/compositor/meta-texture-tower.h b/src/compositor/meta-texture-tower.h
 deleted file mode 100644
-index 1f5b37146..000000000
+index 5522dfbb16..0000000000
 --- a/src/compositor/meta-texture-tower.h
 +++ /dev/null
-@@ -1,68 +0,0 @@
+@@ -1,71 +0,0 @@
 -/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
 -/*
 - * MetaTextureTower
@@ -1024,41 +1151,14 @@ index 1f5b37146..000000000
 -CoglTexture      *meta_texture_tower_get_paint_texture (MetaTextureTower    *tower,
 -                                                        ClutterPaintContext *paint_context);
 -
+-void meta_texture_tower_set_snippet (MetaTextureTower *tower,
+-                                     CoglSnippet      *snippet);
+-
 -G_END_DECLS
 -
 -#endif /* __META_TEXTURE_TOWER_H__ */
-diff --git a/src/compositor/meta-window-group.c b/src/compositor/meta-window-group.c
-index 16ff2db09..c6af609ae 100644
---- a/src/compositor/meta-window-group.c
-+++ b/src/compositor/meta-window-group.c
-@@ -92,6 +92,7 @@ meta_window_group_paint (ClutterActor        *actor,
-     {
-       CoglFramebuffer *fb;
-       ClutterStageView *view;
-+      MetaTransforms trans;
- 
-       fb = clutter_paint_context_get_framebuffer (paint_context);
-       view = clutter_paint_context_get_stage_view (paint_context);
-@@ -102,13 +103,15 @@ meta_window_group_paint (ClutterActor        *actor,
-                                               screen_height,
-                                               screen_width,
-                                               screen_height,
--                                              &paint_x_origin,
--                                              &paint_y_origin) ||
-+                                              &trans) ||
-           !meta_cullable_is_untransformed (META_CULLABLE (actor)))
-         {
-           parent_actor_class->paint (actor, paint_context);
-           return;
-         }
-+
-+      paint_x_origin = trans.x_origin;
-+      paint_y_origin = trans.y_origin;
-     }
-   else
-     {
 diff --git a/src/meson.build b/src/meson.build
-index 7b456f524..4ebe351b0 100644
+index 7b456f524f..4ebe351b04 100644
 --- a/src/meson.build
 +++ b/src/meson.build
 @@ -345,8 +345,6 @@ mutter_sources = [
@@ -1070,3 +1170,6 @@ index 7b456f524..4ebe351b0 100644
    'compositor/meta-window-actor.c',
    'compositor/meta-window-actor-private.h',
    'compositor/meta-window-actor-x11.c',
+-- 
+GitLab
+
