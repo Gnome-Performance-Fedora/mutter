@@ -9,8 +9,8 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       42.1
-Release:       1000.gnomeperformance
+Version:       42.2
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -178,6 +178,12 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu May 19 2022 Florian Müllner <fmuellner@redhat.com> - 42.1-2
+- Rebuild for bodhi
+
+* Fri May 06 2022 Florian Müllner <fmuellner@redhat.com> - 42.1-1
+- Update to 42.1
+
 * Mon May 02 2022 Adam Williamson <awilliam@redhat.com> - 42.0-6
 - Backport MR #2359 to fix GNOME on legacy Radeon (#2081070)
 
