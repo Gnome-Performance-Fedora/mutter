@@ -30,6 +30,8 @@ jobs:
     
     - run: cp x86_64/*.rpm Gnome-Performance-Fedora-Repository/f${{ github.ref_name }}/packages
     
+    - run: rm -f $(repomanage --keep=2 --old Gnome-Performance-Fedora-Repository/f${{ github.ref_name }}/packages)
+    
     - run: createrepo --update Gnome-Performance-Fedora-Repository/f${{ github.ref_name }}/packages
     
     - run: gpg --yes --detach-sign --armor Gnome-Performance-Fedora-Repository/f${{ github.ref_name }}/packages/repodata/repomd.xml
