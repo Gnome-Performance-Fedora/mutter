@@ -9,8 +9,8 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       42.3
-Release:       1000.gnomeperformance
+Version:       42.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -178,6 +178,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Thu Aug 11 2022 Florian Müllner <fmuellner@redhat.com> - 42.4-1
+- Update to 42.4
+
 * Mon Jul 04 2022 Florian Müllner <fmuellner@redhat.com> - 42.3-1
 - Update to 42.3
 
