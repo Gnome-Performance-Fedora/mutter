@@ -26,8 +26,8 @@ Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1936991
 Patch2:        mutter-42.alpha-disable-tegra.patch
 
-# GNOME Performance: Dynamic triple/double buffering (v4)
-Patch100:      1441.patch
+# GNOME Performance: Dynamic triple/double buffering (v4) for GNOME 42 maintenance
+Patch100:      2487.patch
 
 # GNOME Performance: compositor: Use native GL mipmapping instead of MetaTextureTower (v2)
 Patch101:      2506.patch
