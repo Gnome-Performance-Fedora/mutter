@@ -1,4 +1,4 @@
-From fd09d79b92ca22f8bc6891a4549dee4d0018aca4 Mon Sep 17 00:00:00 2001
+From b29a6c4d0cfeec4e14292a2e4f9bb215b8042b85 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 1 Jun 2021 23:50:07 +0800
 Subject: [PATCH 1/3] compositor: Return more details from
@@ -6,6 +6,8 @@ Subject: [PATCH 1/3] compositor: Return more details from
 
 This adds x_scale and y_scale information, as well as simplifying the
 parameters.
+
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2506>
 ---
  src/compositor/clutter-utils.c           | 21 +++++++++++----------
  src/compositor/clutter-utils.h           | 11 +++++++----
@@ -17,7 +19,7 @@ parameters.
  7 files changed, 27 insertions(+), 20 deletions(-)
 
 diff --git a/src/compositor/clutter-utils.c b/src/compositor/clutter-utils.c
-index 86d788562e..3c7165f1ef 100644
+index 86d788562e..95839c2df2 100644
 --- a/src/compositor/clutter-utils.c
 +++ b/src/compositor/clutter-utils.c
 @@ -69,8 +69,7 @@ gboolean
@@ -26,7 +28,7 @@ index 86d788562e..3c7165f1ef 100644
                                         float               heightf,
 -                                       int                *x_origin,
 -                                       int                *y_origin)
-+                                       MetaTransforms     *trans)
++                                       MetaTransforms     *out_transforms)
  {
    int width, height;
    int v0x, v0y, v1x, v1y, v2x, v2y, v3x, v3y;
@@ -34,12 +36,12 @@ index 86d788562e..3c7165f1ef 100644
    x = v0x >> 8;
    y = v0y >> 8;
  
-+  if (trans)
++  if (out_transforms)
 +    {
-+      trans->x_origin = x;
-+      trans->y_origin = y;
-+      trans->x_scale = (v1x - v0x) / (float) width;
-+      trans->y_scale = (v2y - v0y) / (float) height;
++      out_transforms->x_origin = x;
++      out_transforms->y_origin = y;
++      out_transforms->x_scale = (v1x - v0x) / (float) width;
++      out_transforms->y_scale = (v2y - v0y) / (float) height;
 +    }
 +
    /* At integral coordinates? */
@@ -63,7 +65,7 @@ index 86d788562e..3c7165f1ef 100644
                                     int              sample_height,
 -                                   int             *x_origin,
 -                                   int             *y_origin)
-+                                   MetaTransforms  *trans)
++                                   MetaTransforms  *out_transforms)
  {
    graphene_matrix_t modelview, projection, modelview_projection;
    graphene_point3d_t vertices[4];
@@ -72,11 +74,11 @@ index 86d788562e..3c7165f1ef 100644
    return meta_actor_vertices_are_untransformed (vertices,
                                                  sample_width, sample_height,
 -                                                x_origin, y_origin);
-+                                                trans);
++                                                out_transforms);
  }
  
 diff --git a/src/compositor/clutter-utils.h b/src/compositor/clutter-utils.h
-index 8ed0e2a4d1..039e61a619 100644
+index 8ed0e2a4d1..921551aafb 100644
 --- a/src/compositor/clutter-utils.h
 +++ b/src/compositor/clutter-utils.h
 @@ -23,18 +23,21 @@
@@ -93,7 +95,7 @@ index 8ed0e2a4d1..039e61a619 100644
                                                  float               heightf,
 -                                                int                *x_origin,
 -                                                int                *y_origin);
-+                                                MetaTransforms     *trans);
++                                                MetaTransforms     *out_transforms);
  
  gboolean meta_actor_painting_untransformed (CoglFramebuffer *fb,
                                              int              paint_width,
@@ -102,14 +104,14 @@ index 8ed0e2a4d1..039e61a619 100644
                                              int              sample_heightf,
 -                                            int             *x_origin,
 -                                            int             *y_origin);
-+                                            MetaTransforms  *trans);
++                                            MetaTransforms  *out_transforms);
  
  #endif /* __META_CLUTTER_UTILS_H__ */
 diff --git a/src/compositor/meta-background-content.c b/src/compositor/meta-background-content.c
-index 49f5885ca7..93de521d05 100644
+index 2e8c923b47..e472c3c5dc 100644
 --- a/src/compositor/meta-background-content.c
 +++ b/src/compositor/meta-background-content.c
-@@ -561,7 +561,7 @@ setup_pipeline (MetaBackgroundContent *self,
+@@ -548,7 +548,7 @@ setup_pipeline (MetaBackgroundContent *self,
                                           actor_pixel_rect->height,
                                           self->texture_width,
                                           self->texture_height,
@@ -132,7 +134,7 @@ index 6f38c5e47c..e306c56e28 100644
  
  static void
 diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
-index 34fec6852a..a74f50603c 100644
+index d7cba799ea..29a6b1c908 100644
 --- a/src/compositor/meta-shaped-texture.c
 +++ b/src/compositor/meta-shaped-texture.c
 @@ -712,7 +712,7 @@ do_paint_content (MetaShapedTexture   *stex,
@@ -191,7 +193,7 @@ index 16ff2db097..c6af609aea 100644
 GitLab
 
 
-From 58beac8c6cf6365eb5bffd2be28412f05e90dbe8 Mon Sep 17 00:00:00 2001
+From 16fa2100dcb31b911a029a93e350c77c3944c262 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 1 Jun 2021 18:55:12 +0800
 Subject: [PATCH 2/3] shaped-texture: Stop using MetaTextureTower and use GL
@@ -202,12 +204,13 @@ less than half its native resolution. We also keep the existing
 optimization that avoids mipmapping of textures while they're animating.
 
 Fixes: https://gitlab.gnome.org/GNOME/mutter/-/issues/849
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2506>
 ---
  src/compositor/meta-shaped-texture.c | 187 +++++++++++++++++++++------
  1 file changed, 147 insertions(+), 40 deletions(-)
 
 diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
-index a74f50603c..222095587a 100644
+index 29a6b1c908..031e215517 100644
 --- a/src/compositor/meta-shaped-texture.c
 +++ b/src/compositor/meta-shaped-texture.c
 @@ -41,7 +41,6 @@
@@ -548,19 +551,540 @@ index a74f50603c..222095587a 100644
 GitLab
 
 
-From 463d746d30f66925657fea8711acd6cfa5ab01d7 Mon Sep 17 00:00:00 2001
-From: Daniel van Vugt <daniel.van.vugt@canonical.com>
-Date: Wed, 2 Jun 2021 00:22:15 +0800
-Subject: [PATCH 3/3] compositor: Delete meta-texture-tower.* as it's unused.
+From 877dc33545e76cf71358d304caf39755b74081a7 Mon Sep 17 00:00:00 2001
+From: Neil Moore <dar13.dev@gmail.com>
+Date: Fri, 10 Jun 2022 19:13:57 -0400
+Subject: [PATCH 3/3] shaped-texture: Move texture mipmap implementation to
+ 'meta-texture-mipmap'
 
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2506>
 ---
- src/compositor/meta-texture-tower.c | 513 ----------------------------
- src/compositor/meta-texture-tower.h |  71 ----
- src/meson.build                     |   2 -
- 3 files changed, 586 deletions(-)
+ src/compositor/meta-shaped-texture.c | 120 +------
+ src/compositor/meta-texture-mipmap.c | 240 +++++++++++++
+ src/compositor/meta-texture-mipmap.h |  54 +++
+ src/compositor/meta-texture-tower.c  | 513 ---------------------------
+ src/compositor/meta-texture-tower.h  |  71 ----
+ src/meson.build                      |   4 +-
+ 6 files changed, 307 insertions(+), 695 deletions(-)
+ create mode 100644 src/compositor/meta-texture-mipmap.c
+ create mode 100644 src/compositor/meta-texture-mipmap.h
  delete mode 100644 src/compositor/meta-texture-tower.c
  delete mode 100644 src/compositor/meta-texture-tower.h
 
+diff --git a/src/compositor/meta-shaped-texture.c b/src/compositor/meta-shaped-texture.c
+index 031e215517..b8e4dff5d5 100644
+--- a/src/compositor/meta-shaped-texture.c
++++ b/src/compositor/meta-shaped-texture.c
+@@ -41,6 +41,7 @@
+ 
+ #include "cogl/cogl.h"
+ #include "compositor/clutter-utils.h"
++#include "compositor/meta-texture-mipmap.h"
+ #include "compositor/region-utils.h"
+ #include "core/boxes-private.h"
+ #include "meta/meta-shaped-texture.h"
+@@ -93,10 +94,7 @@ struct _MetaShapedTexture
+   CoglPipeline *unblended_pipeline;
+   CoglPipeline *unblended_tower_pipeline;
+ 
+-  CoglTexture *mipmap_texture;
+-  gboolean mipmap_texture_out_of_date;
+-  CoglFramebuffer *mipmap_fb;
+-  CoglPipeline *mipmap_pipeline;
++  MetaTextureMipmap *texture_mipmap;
+ 
+   gboolean is_y_inverted;
+ 
+@@ -156,6 +154,7 @@ invalidate_size (MetaShapedTexture *stex)
+ static void
+ meta_shaped_texture_init (MetaShapedTexture *stex)
+ {
++  stex->texture_mipmap = meta_texture_mipmap_new ();
+   stex->buffer_scale = 1;
+   stex->texture = NULL;
+   stex->mask_texture = NULL;
+@@ -252,13 +251,6 @@ meta_shaped_texture_reset_pipelines (MetaShapedTexture *stex)
+   g_clear_pointer (&stex->unblended_tower_pipeline, cogl_object_unref);
+ }
+ 
+-static void
+-free_mipmaps (MetaShapedTexture *stex)
+-{
+-  g_clear_object (&stex->mipmap_fb);
+-  cogl_clear_object (&stex->mipmap_texture);
+-}
+-
+ static void
+ meta_shaped_texture_dispose (GObject *object)
+ {
+@@ -266,8 +258,7 @@ meta_shaped_texture_dispose (GObject *object)
+ 
+   g_clear_handle_id (&stex->remipmap_timeout_id, g_source_remove);
+ 
+-  free_mipmaps (stex);
+-  cogl_clear_object (&stex->mipmap_pipeline);
++  g_clear_pointer (&stex->texture_mipmap, meta_texture_mipmap_free);
+ 
+   g_clear_pointer (&stex->texture, cogl_object_unref);
+ 
+@@ -624,7 +615,8 @@ set_cogl_texture (MetaShapedTexture *stex,
+       update_size (stex);
+     }
+ 
+-  stex->mipmap_texture_out_of_date = TRUE;
++  meta_texture_mipmap_set_base_texture (stex->texture_mipmap, stex->texture);
++  meta_texture_mipmap_invalidate (stex->texture_mipmap);
+ }
+ 
+ static gboolean
+@@ -723,7 +715,7 @@ do_paint_content (MetaShapedTexture   *stex,
+       mag_filter = COGL_PIPELINE_FILTER_NEAREST;
+ 
+       /* Back to normal desktop viewing. Save some memory */
+-      free_mipmaps (stex);
++      meta_texture_mipmap_clear (stex->texture_mipmap);
+     }
+   else
+     {
+@@ -740,8 +732,6 @@ do_paint_content (MetaShapedTexture   *stex,
+           transforms.y_scale < 0.5)
+         {
+           paint_tex = select_texture_for_paint (stex, paint_context);
+-          if (paint_tex == stex->mipmap_texture)
+-            min_filter = COGL_PIPELINE_FILTER_LINEAR_MIPMAP_NEAREST;
+         }
+     }
+ 
+@@ -922,94 +912,6 @@ do_paint_content (MetaShapedTexture   *stex,
+   g_clear_pointer (&blended_tex_region, cairo_region_destroy);
+ }
+ 
+-static void
+-ensure_mipmap_texture (MetaShapedTexture *stex)
+-{
+-  CoglContext *ctx =
+-    clutter_backend_get_cogl_context (clutter_get_default_backend ());
+-  int width, height;
+-
+-  /* Let's avoid spending any texture memory copying the base level texture
+-   * because we'll never need that one and it would have used most of the
+-   * memory;
+-   *    S(0) = W x H
+-   *    S(n) = S(n-1) / 4
+-   *    sum to infinity of S(n) = 4/3 * S(0)
+-   * So subtracting S(0) means even infinite mipmap levels only need one third
+-   * of the original texture's memory. Finite levels need less.
+-   *
+-   * The fact that mipmap level 0 of stex->mipmap_texture is half the
+-   * resolution of stex->texture makes no visual difference, so long as you're
+-   * never trying to view a level of detail higher than half. If you need that
+-   * then just use stex->texture instead of stex->mipmap_texture, which is
+-   * faster anyway.
+-   */
+-  width = cogl_texture_get_width (stex->texture) / 2;
+-  height = cogl_texture_get_height (stex->texture) / 2;
+-
+-  if (!width || !height)
+-    {
+-      free_mipmaps (stex);
+-      return;
+-    }
+-
+-  if (!stex->mipmap_texture ||
+-      cogl_texture_get_width (stex->mipmap_texture) != width ||
+-      cogl_texture_get_height (stex->mipmap_texture) != height)
+-    {
+-      CoglOffscreen *offscreen;
+-      CoglTexture2D *tex2d;
+-
+-      free_mipmaps (stex);
+-
+-      tex2d = cogl_texture_2d_new_with_size (ctx, width, height);
+-      if (!tex2d)
+-        return;
+-
+-      stex->mipmap_texture = COGL_TEXTURE (tex2d);
+-
+-      offscreen = cogl_offscreen_new_with_texture (stex->mipmap_texture);
+-      if (!offscreen)
+-        {
+-          free_mipmaps (stex);
+-          return;
+-        }
+-
+-      stex->mipmap_fb = COGL_FRAMEBUFFER (offscreen);
+-
+-      if (!cogl_framebuffer_allocate (stex->mipmap_fb, NULL))
+-        {
+-          free_mipmaps (stex);
+-          return;
+-        }
+-
+-      cogl_framebuffer_orthographic (stex->mipmap_fb,
+-                                     0, 0, width, height, -1.0, 1.0);
+-
+-      stex->mipmap_texture_out_of_date = TRUE;
+-    }
+-
+-  if (stex->mipmap_texture_out_of_date)
+-    {
+-      if (!stex->mipmap_pipeline)
+-        {
+-          stex->mipmap_pipeline = cogl_pipeline_new (ctx);
+-          cogl_pipeline_set_blend (stex->mipmap_pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
+-          cogl_pipeline_set_layer_filters (stex->mipmap_pipeline, 0,
+-                                           COGL_PIPELINE_FILTER_LINEAR,
+-                                           COGL_PIPELINE_FILTER_LINEAR);
+-        }
+-
+-      cogl_pipeline_set_layer_texture (stex->mipmap_pipeline, 0, stex->texture);
+-      cogl_framebuffer_draw_textured_rectangle (stex->mipmap_fb,
+-                                                stex->mipmap_pipeline,
+-                                                0, 0, width, height,
+-                                                0.0, 0.0, 1.0, 1.0);
+-
+-      stex->mipmap_texture_out_of_date = FALSE;
+-    }
+-}
+-
+ static CoglTexture *
+ select_texture_for_paint (MetaShapedTexture   *stex,
+                           ClutterPaintContext *paint_context)
+@@ -1029,8 +931,7 @@ select_texture_for_paint (MetaShapedTexture   *stex,
+       if (age >= MIN_MIPMAP_AGE_USEC ||
+           stex->fast_updates < MIN_FAST_UPDATES_BEFORE_UNMIPMAP)
+         {
+-          ensure_mipmap_texture (stex);
+-          texture = stex->mipmap_texture;
++          texture = meta_texture_mipmap_get_paint_texture (stex->texture_mipmap);
+         }
+     }
+ 
+@@ -1129,7 +1030,7 @@ meta_shaped_texture_set_create_mipmaps (MetaShapedTexture *stex,
+       stex->create_mipmaps = create_mipmaps;
+ 
+       if (!stex->create_mipmaps)
+-        free_mipmaps (stex);
++        meta_texture_mipmap_clear (stex->texture_mipmap);
+     }
+ }
+ 
+@@ -1258,7 +1159,8 @@ meta_shaped_texture_update_area (MetaShapedTexture     *stex,
+                                      clip);
+     }
+ 
+-  stex->mipmap_texture_out_of_date = TRUE;
++  meta_texture_mipmap_invalidate (stex->texture_mipmap);
++
+   stex->prev_invalidation = stex->last_invalidation;
+   stex->last_invalidation = g_get_monotonic_time ();
+ 
+diff --git a/src/compositor/meta-texture-mipmap.c b/src/compositor/meta-texture-mipmap.c
+new file mode 100644
+index 0000000000..2ee9190e27
+--- /dev/null
++++ b/src/compositor/meta-texture-mipmap.c
+@@ -0,0 +1,240 @@
++/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
++/*
++ * MetaTextureMipmap
++ *
++ * Mipmap management object using OpenGL
++ *
++ * Copyright (C) 2009 Red Hat, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see <http://www.gnu.org/licenses/>.
++ */
++
++#include "config.h"
++
++#include "compositor/meta-texture-mipmap.h"
++
++#include <math.h>
++#include <string.h>
++
++struct _MetaTextureMipmap
++{
++  CoglTexture *base_texture;
++  CoglTexture *mipmap_texture;
++  CoglPipeline *pipeline;
++  CoglFramebuffer *fb;
++  gboolean invalid;
++};
++
++/**
++ * meta_texture_mipmap_new:
++ *
++ * Creates a new mipmap handler. The base texture has to be set with
++ * meta_texture_mipmap_set_base_texture() before use.
++ *
++ * Return value: the new texture mipmap handler. Free with meta_texture_mipmap_free()
++ */
++MetaTextureMipmap *
++meta_texture_mipmap_new (void)
++{
++  MetaTextureMipmap *mipmap;
++
++  mipmap = g_new0 (MetaTextureMipmap, 1);
++
++  return mipmap;
++}
++
++/**
++ * meta_texture_mipmap_free:
++ * @mipmap: a #MetaTextureMipmap
++ *
++ * Frees a texture mipmap handler created with meta_texture_mipmap_new().
++ */
++void
++meta_texture_mipmap_free (MetaTextureMipmap *mipmap)
++{
++  g_return_if_fail (mipmap != NULL);
++
++  cogl_clear_object (&mipmap->pipeline);
++
++  meta_texture_mipmap_set_base_texture (mipmap, NULL);
++
++  g_free (mipmap);
++}
++
++/**
++ * meta_texture_mipmap_set_base_texture:
++ * @mipmap: a #MetaTextureMipmap
++ * @texture: the new texture used as a base for scaled down versions
++ *
++ * Sets the base texture that is the scaled texture that the
++ * scaled textures of the tower are derived from. The texture itself
++ * will be used as level 0 of the tower and will be referenced until
++ * unset or until the tower is freed.
++ */
++void
++meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
++                                      CoglTexture      *texture)
++{
++  g_return_if_fail (mipmap != NULL);
++
++  if (texture == mipmap->base_texture)
++    return;
++
++  if (mipmap->base_texture != NULL)
++    {
++      cogl_object_unref (mipmap->base_texture);
++    }
++
++  mipmap->base_texture = texture;
++
++  if (mipmap->base_texture != NULL)
++    {
++      cogl_object_ref (mipmap->base_texture);
++      mipmap->invalid = TRUE;
++    }
++}
++
++void
++meta_texture_mipmap_invalidate (MetaTextureMipmap *mipmap)
++{
++  g_return_if_fail (mipmap != NULL);
++
++  mipmap->invalid = TRUE;
++}
++
++static void
++free_mipmaps (MetaTextureMipmap *mipmap)
++{
++  g_clear_object (&mipmap->fb);
++  cogl_clear_object (&mipmap->mipmap_texture);
++}
++
++void
++meta_texture_mipmap_clear (MetaTextureMipmap *mipmap)
++{
++  g_return_if_fail (mipmap != NULL);
++
++  free_mipmaps (mipmap);
++}
++
++static void
++ensure_mipmap_texture (MetaTextureMipmap *mipmap)
++{
++  CoglContext *ctx =
++    clutter_backend_get_cogl_context (clutter_get_default_backend ());
++  int width, height;
++
++  /* Let's avoid spending any texture memory copying the base level texture
++   * because we'll never need that one and it would have used most of the
++   * memory;
++   *    S(0) = W x H
++   *    S(n) = S(n-1) / 4
++   *    sum to infinity of S(n) = 4/3 * S(0)
++   * So subtracting S(0) means even infinite mipmap levels only need one third
++   * of the original texture's memory. Finite levels need less.
++   *
++   * The fact that mipmap level 0 of mipmap texture is half the
++   * resolution of original texture makes no visual difference, so long as you're
++   * never trying to view a level of detail higher than half. If you need that
++   * then just use the original texture instead of mipmap texture, which is
++   * faster anyway.
++   */
++  width = cogl_texture_get_width (mipmap->base_texture) / 2;
++  height = cogl_texture_get_height (mipmap->base_texture) / 2;
++
++  if (!width || !height)
++    {
++      free_mipmaps (mipmap);
++      return;
++    }
++
++  if (!mipmap->mipmap_texture ||
++      cogl_texture_get_width (mipmap->mipmap_texture) != width ||
++      cogl_texture_get_height (mipmap->mipmap_texture) != height)
++    {
++      CoglOffscreen *offscreen;
++      CoglTexture2D *tex2d;
++
++      free_mipmaps (mipmap);
++
++      tex2d = cogl_texture_2d_new_with_size (ctx, width, height);
++      if (!tex2d)
++        return;
++
++      mipmap->mipmap_texture = COGL_TEXTURE (tex2d);
++
++      offscreen = cogl_offscreen_new_with_texture (mipmap->mipmap_texture);
++      if (!offscreen)
++        {
++          free_mipmaps (mipmap);
++          return;
++        }
++
++      mipmap->fb = COGL_FRAMEBUFFER (offscreen);
++
++      if (!cogl_framebuffer_allocate (mipmap->fb, NULL))
++        {
++          free_mipmaps (mipmap);
++          return;
++        }
++
++      cogl_framebuffer_orthographic (mipmap->fb,
++                                     0, 0, width, height, -1.0, 1.0);
++
++      mipmap->invalid = TRUE;
++    }
++
++  if (mipmap->invalid)
++    {
++      if (!mipmap->pipeline)
++        {
++          mipmap->pipeline = cogl_pipeline_new (ctx);
++          cogl_pipeline_set_blend (mipmap->pipeline, "RGBA = ADD (SRC_COLOR, 0)", NULL);
++          cogl_pipeline_set_layer_filters (mipmap->pipeline, 0,
++                                           COGL_PIPELINE_FILTER_LINEAR,
++                                           COGL_PIPELINE_FILTER_LINEAR);
++        }
++
++      cogl_pipeline_set_layer_texture (mipmap->pipeline, 0, mipmap->base_texture);
++      cogl_framebuffer_draw_textured_rectangle (mipmap->fb,
++                                                mipmap->pipeline,
++                                                0, 0, width, height,
++                                                0.0, 0.0, 1.0, 1.0);
++
++      mipmap->invalid = FALSE;
++    }
++}
++
++/**
++ * meta_texture_tower_get_paint_texture:
++ * @mipmap: a #MetaTextureMipmap
++ *
++ * Gets the texture from the tower that best matches the current
++ * rendering scale. (On the assumption here the texture is going to
++ * be rendered with vertex coordinates that correspond to its
++ * size in pixels, so a 200x200 texture will be rendered on the
++ * rectangle (0, 0, 200, 200).
++ *
++ * Return value: the COGL texture handle to use for painting, or
++ *  %NULL if no base texture has yet been set.
++ */
++CoglTexture *
++meta_texture_mipmap_get_paint_texture (MetaTextureMipmap *mipmap)
++{
++  g_return_val_if_fail (mipmap != NULL, NULL);
++
++  ensure_mipmap_texture (mipmap);
++
++  return mipmap->mipmap_texture;
++}
+diff --git a/src/compositor/meta-texture-mipmap.h b/src/compositor/meta-texture-mipmap.h
+new file mode 100644
+index 0000000000..fd83a49c27
+--- /dev/null
++++ b/src/compositor/meta-texture-mipmap.h
+@@ -0,0 +1,54 @@
++/* -*- mode: C; c-file-style: "gnu"; indent-tabs-mode: nil; -*- */
++/*
++ * MetaTextureMipmap
++ *
++ * Mipmap management object using OpenGL
++ *
++ * Copyright (C) 2009 Red Hat, Inc.
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License as
++ * published by the Free Software Foundation; either version 2 of the
++ * License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful, but
++ * WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++ * General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, see <http://www.gnu.org/licenses/>.
++ */
++
++#ifndef META_TEXTURE_MIPMAP_H
++#define META_TEXTURE_MIPMAP_H
++
++#include "clutter/clutter.h"
++
++G_BEGIN_DECLS
++
++/**
++ * SECTION:MetaTextureMipmap
++ * @short_description: mipmap handling for textures
++ *
++ * A #MetaTextureMipmap is used to get GL mipmaps for a texture
++ */
++
++typedef struct _MetaTextureMipmap MetaTextureMipmap;
++
++MetaTextureMipmap *meta_texture_mipmap_new (void);
++
++void meta_texture_mipmap_free (MetaTextureMipmap *mipmap);
++
++void meta_texture_mipmap_set_base_texture (MetaTextureMipmap *mipmap,
++                                           CoglTexture *texture);
++
++CoglTexture *meta_texture_mipmap_get_paint_texture (MetaTextureMipmap *mipmap);
++
++void meta_texture_mipmap_invalidate (MetaTextureMipmap *mipmap);
++
++void meta_texture_mipmap_clear (MetaTextureMipmap *mipmap);
++
++G_END_DECLS
++
++#endif /* META_TEXTURE_MIPMAP_H */
 diff --git a/src/compositor/meta-texture-tower.c b/src/compositor/meta-texture-tower.c
 deleted file mode 100644
 index 510e85f796..0000000000
@@ -1158,15 +1682,17 @@ index 5522dfbb16..0000000000
 -
 -#endif /* __META_TEXTURE_TOWER_H__ */
 diff --git a/src/meson.build b/src/meson.build
-index 7b456f524f..4ebe351b04 100644
+index f752f03d96..6dda94b696 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -345,8 +345,6 @@ mutter_sources = [
+@@ -344,8 +344,8 @@ mutter_sources = [
    'compositor/meta-surface-actor-x11.h',
    'compositor/meta-sync-ring.c',
    'compositor/meta-sync-ring.h',
 -  'compositor/meta-texture-tower.c',
 -  'compositor/meta-texture-tower.h',
++  'compositor/meta-texture-mipmap.c',
++  'compositor/meta-texture-mipmap.h',
    'compositor/meta-window-actor.c',
    'compositor/meta-window-actor-private.h',
    'compositor/meta-window-actor-x11.c',

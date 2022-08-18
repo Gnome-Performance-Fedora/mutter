@@ -29,8 +29,8 @@ Patch2:        mutter-42.alpha-disable-tegra.patch
 # GNOME Performance: Dynamic triple/double buffering (v4)
 Patch100:      1441.patch
 
-# GNOME Performance: compositor: Use native GL mipmapping instead of MetaTextureTower
-Patch101:      1877.patch
+# GNOME Performance: compositor: Use native GL mipmapping instead of MetaTextureTower (v2)
+Patch101:      2506.patch
 
 # GNOME Performance: Enable RT_SCHEDULER by default
 Patch102:      0001-enable-rt-scheduler-default.patch
