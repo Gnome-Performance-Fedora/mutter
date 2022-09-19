@@ -1,7 +1,7 @@
-From ba70cf217b9b39a9e9c25704677ebd356faab171 Mon Sep 17 00:00:00 2001
+From 4b92e1c16bee76fe5ae4b26c8ed5f1c09df6c1b5 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 10 Nov 2021 18:55:53 +0800
-Subject: [PATCH 01/46] onscreen/native: Tidy up secondary GPU buffer tracking
+Subject: [PATCH 01/47] onscreen/native: Tidy up secondary GPU buffer tracking
 
 The primary plane of a CRTC can only have one `current_fb` and therefore
 only one `next_fb`, so don't confuse the situation by maintaining two of
@@ -511,10 +511,10 @@ index 36d6e291eb..a006453be5 100644
 GitLab
 
 
-From 6f61939ab0481b9378da97e14d3b2c487bdf9ea7 Mon Sep 17 00:00:00 2001
+From fbde1b0ae0bdab549c82e3e3eda6783bf1f0172c Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 19 Jan 2022 18:43:15 +0800
-Subject: [PATCH 02/46] onscreen/native: Hold primary GPU FBs for the secondary
+Subject: [PATCH 02/47] onscreen/native: Hold primary GPU FBs for the secondary
  scanout lifetime
 
 This is out of an abundance of caution. In cases where we have copied the
@@ -649,10 +649,10 @@ index a006453be5..80b5506f03 100644
 GitLab
 
 
-From 6bacacb14f9809b27255084aa088d96598b8413d Mon Sep 17 00:00:00 2001
+From fbd121ff1c4e5bf40945451194b84c40c8c21465 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Mon, 16 Aug 2021 17:06:43 +0800
-Subject: [PATCH 03/46] kms/update: Hold a reference to the buffer used in a
+Subject: [PATCH 03/47] kms/update: Hold a reference to the buffer used in a
  plane assignment
 
 ---
@@ -684,10 +684,10 @@ index 53fc92eb86..2889338ec5 100644
 GitLab
 
 
-From 5a44964a00d61804a7cf5be00cc726d91e879143 Mon Sep 17 00:00:00 2001
+From f6720ef68b1aaad43dbdade6d0a036801f927beb Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Mon, 16 Aug 2021 18:04:10 +0800
-Subject: [PATCH 04/46] kms/crtc: Add an API to hold references to buffers
+Subject: [PATCH 04/47] kms/crtc: Add an API to hold references to buffers
  while asssigned to planes
 
 ---
@@ -849,10 +849,10 @@ index 54801dd96a..deafeb61e0 100644
 GitLab
 
 
-From e846b4e4355d44381c1e6f907196fb95d6fc3816 Mon Sep 17 00:00:00 2001
+From 01d6c5d55244e68e0232c1b4e8db8e7c240e3076 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 17 Aug 2021 16:35:18 +0800
-Subject: [PATCH 05/46] kms/page-flip: Pump the CRTC's buffer reference queue
+Subject: [PATCH 05/47] kms/page-flip: Pump the CRTC's buffer reference queue
  on scanout
 
 Precise timing of this call is not important. We only need to notify
@@ -887,10 +887,10 @@ index 817f4e7c8d..148d237400 100644
 GitLab
 
 
-From 97f5f2008aeb64da176209cedff456417584cada Mon Sep 17 00:00:00 2001
+From 63af1f86513d1f93ca557b4960a047bff0225593 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 9 Feb 2022 16:44:09 +0800
-Subject: [PATCH 06/46] kms/impl-device: Release buffers from MetaKmsCrtc in
+Subject: [PATCH 06/47] kms/impl-device: Release buffers from MetaKmsCrtc in
  prepare_shutdown
 
 This allows them to release their buffers cleanly while all the
@@ -921,10 +921,10 @@ index ec1a0e5a45..afea2c4860 100644
 GitLab
 
 
-From ff682262c71b3e6175f23f500e2995fea1f997c1 Mon Sep 17 00:00:00 2001
+From 8e02947105d03e62825e575482d56ccd8540fbb2 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 7 Dec 2021 18:31:16 +0800
-Subject: [PATCH 07/46] kms/impl-device/simple: Pump the CRTC's buffer
+Subject: [PATCH 07/47] kms/impl-device/simple: Pump the CRTC's buffer
  reference queue on scanout
 
 In this case "on scanout" means when `drmModeSetCrtc` succeeds. This is
@@ -960,10 +960,10 @@ index ca4ffe2454..00f5249028 100644
 GitLab
 
 
-From 84edf0d9ba70bb19969649d0e6916d53b3e1e5d7 Mon Sep 17 00:00:00 2001
+From e70948990495fecdcb19f41379f5d2bc64eb60ae Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 17 Aug 2021 17:40:57 +0800
-Subject: [PATCH 08/46] kms/impl-device/simple: Keep a reference to buffers
+Subject: [PATCH 08/47] kms/impl-device/simple: Keep a reference to buffers
  assigned to planes
 
 The MetaKmsCrtc will hold these references during future scanouts until
@@ -1012,10 +1012,10 @@ index 00f5249028..c771795998 100644
 GitLab
 
 
-From a9848da8891788f412eec60c66ca09187b7ffa2b Mon Sep 17 00:00:00 2001
+From 2ec5bd3d625db6eabc5915c32bcc9f5c94085f64 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 7 Dec 2021 17:54:15 +0800
-Subject: [PATCH 09/46] kms/impl-device/simple: Keep a reference to buffers
+Subject: [PATCH 09/47] kms/impl-device/simple: Keep a reference to buffers
  needed in retries
 
 ---
@@ -1114,10 +1114,10 @@ index c771795998..679dd8600a 100644
 GitLab
 
 
-From e4f72e1d02a8c8f6037b98a9ee973b4faa9c5f00 Mon Sep 17 00:00:00 2001
+From 4d33e77718d6c4c1df961c8ca3f3b849d79215b8 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 17 Aug 2021 16:36:25 +0800
-Subject: [PATCH 10/46] kms/impl-device/atomic: Keep a reference to buffers
+Subject: [PATCH 10/47] kms/impl-device/atomic: Keep a reference to buffers
  assigned to planes
 
 The MetaKmsCrtc will hold these references during future scanouts until
@@ -1165,10 +1165,10 @@ index 73dd8e6971..787d05acda 100644
 GitLab
 
 
-From 9f7dd85f8b2d2c1c99a025d467c5cd59de665165 Mon Sep 17 00:00:00 2001
+From 229f9b0e1138c8b78f46f8c0181d2e7b53567ad2 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 18 Aug 2021 15:04:27 +0800
-Subject: [PATCH 11/46] onscreen/native: Stop holding the current onscreen
+Subject: [PATCH 11/47] onscreen/native: Stop holding the current onscreen
  buffer
 
 The scanout lifetime of the buffer is now automatically managed via
@@ -1285,10 +1285,10 @@ index 80b5506f03..6eb5439569 100644
 GitLab
 
 
-From 0514450a867435732c951082be30cfa47c34d966 Mon Sep 17 00:00:00 2001
+From 75ea77fbaafa06feb5f26f323a285974515b34db Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 24 Sep 2021 21:49:45 +0800
-Subject: [PATCH 12/46] onscreen/native: Keep the onscreen alive longer than
+Subject: [PATCH 12/47] onscreen/native: Keep the onscreen alive longer than
  `MetaDrmBufferGbm`
 
 Because `MetaDrmBufferGbm` uses `gbm_surface` in its destructor and
@@ -1302,23 +1302,22 @@ a replacement frame on the same `MetaKmsCrtc`.
 We could instead wrap and refcount all users of `gbm_surface`, but that
 would be a lot more work for no additional benefit right now.
 ---
- src/backends/native/meta-onscreen-native.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ src/backends/native/meta-onscreen-native.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 6eb5439569..a116b53081 100644
+index 6eb5439569..09a7be721a 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -1067,6 +1067,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -409,6 +409,11 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
+           meta_kms_plane_assignment_set_fb_damage (plane_assignment,
+                                                    rectangles, n_rectangles);
          }
- 
-       primary_gpu_fb = META_DRM_BUFFER (g_steal_pointer (&buffer_gbm));
 +
-+      g_object_set_data_full (G_OBJECT (primary_gpu_fb),
++      g_object_set_data_full (G_OBJECT (buffer),
 +                              "gbm_surface owner",
 +                              g_object_ref (onscreen),
 +                              (GDestroyNotify) g_object_unref);
-+
        break;
      case META_RENDERER_NATIVE_MODE_SURFACELESS:
        g_assert_not_reached ();
@@ -1326,10 +1325,10 @@ index 6eb5439569..a116b53081 100644
 GitLab
 
 
-From ed3224abb894efd1c50a33ecafecdafa123d521f Mon Sep 17 00:00:00 2001
+From 4b162380b0c2237e002ff2ef6f9717d3857e9b68 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 18 Aug 2021 15:59:16 +0800
-Subject: [PATCH 13/46] cursor-renderer/native: Stop holding onto historical
+Subject: [PATCH 13/47] cursor-renderer/native: Stop holding onto historical
  cursor buffers
 
 Their scanout lifetimes are now managed automatically via the call
@@ -1511,10 +1510,10 @@ index 96c54baf02..0816d4060a 100644
 GitLab
 
 
-From db66ba5e21214745b4f905dc08f1e078625d782e Mon Sep 17 00:00:00 2001
+From 06219576d5c1fca6554d20a09116c1e9e61d14a2 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 18 Aug 2021 16:12:24 +0800
-Subject: [PATCH 14/46] cursor-renderer/native: Remove MetaCursorBufferState
+Subject: [PATCH 14/47] cursor-renderer/native: Remove MetaCursorBufferState
 
 It was theoretically useful for flagging when a NULL buffer had been
 SET, but in practice set_cursor_sprite_buffer is never called when the
@@ -1645,10 +1644,10 @@ index 0816d4060a..e51d182ba7 100644
 GitLab
 
 
-From a9e281926265c8273f963dc72e33069a72fac228 Mon Sep 17 00:00:00 2001
+From 776b4665ae194fb86733e9c18027f0df81f7a6cd Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 17 Sep 2021 17:48:20 +0800
-Subject: [PATCH 15/46] cogl/onscreen: Add function
+Subject: [PATCH 15/47] cogl/onscreen: Add function
  cogl_onscreen_count_pending_frames
 
 ---
@@ -1691,10 +1690,10 @@ index ff9e1749a7..b25b4af4ab 100644
 GitLab
 
 
-From 4b1a0382c67fb7863d6a9796a430858717fbfccf Mon Sep 17 00:00:00 2001
+From 55099b4ecc931c61e31bb4696d1c5c64550241d9 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 26 Oct 2021 18:50:50 +0800
-Subject: [PATCH 16/46] renderer/native: Avoid requeuing the same onscreen for
+Subject: [PATCH 16/47] renderer/native: Avoid requeuing the same onscreen for
  a power save flip
 
 This is a case that triple buffering will encounter. We don't want it
@@ -1725,10 +1724,10 @@ index f5f22c7b1e..e6b5c339fa 100644
 GitLab
 
 
-From ffb8b8d37077cbb00145e9a571f2fd11f6d064ef Mon Sep 17 00:00:00 2001
+From bbcaa39c40c3845a3077e0f6de04a73c5bd541ef Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Mon, 1 Nov 2021 19:35:34 +0800
-Subject: [PATCH 17/46] renderer/native: Steal the power save flip list before
+Subject: [PATCH 17/47] renderer/native: Steal the power save flip list before
  iterating over it
 
 Because a single iteration might also grow the list again.
@@ -1765,10 +1764,10 @@ index e6b5c339fa..e15f96e2ad 100644
 GitLab
 
 
-From 4f018ad08815d75d4f67aee787ea580e61957a5f Mon Sep 17 00:00:00 2001
+From b6f5210d528c975bb1dba0378c5ee5db93e02b4c Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 10 Dec 2021 16:40:58 +0800
-Subject: [PATCH 18/46] onscreen/native: Log swapbuffers and N-buffering when
+Subject: [PATCH 18/47] onscreen/native: Log swapbuffers and N-buffering when
  MUTTER_DEBUG=kms
 
 ---
@@ -1776,10 +1775,10 @@ Subject: [PATCH 18/46] onscreen/native: Log swapbuffers and N-buffering when
  1 file changed, 13 insertions(+)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index a116b53081..35ac9c0369 100644
+index 09a7be721a..beb9c08fa6 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -1030,6 +1030,19 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1035,6 +1035,19 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                             "Onscreen (swap-buffers)");
  
@@ -1803,10 +1802,10 @@ index a116b53081..35ac9c0369 100644
 GitLab
 
 
-From e7a280d667f76f76a37fdd28a1ad908c86095c7a Mon Sep 17 00:00:00 2001
+From 6d5e623aaa166bef8a77db828fc4b20ca5d76032 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 28 Jul 2021 16:35:56 +0800
-Subject: [PATCH 19/46] onscreen/native: Replace an assertion that double
+Subject: [PATCH 19/47] onscreen/native: Replace an assertion that double
  buffering is the maximum
 
 Because it soon won't be the maximum. But we do want to verify that the
@@ -1817,7 +1816,7 @@ errors.
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 35ac9c0369..4cc0eb8916 100644
+index beb9c08fa6..ee1e5de028 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -150,7 +150,7 @@ meta_onscreen_native_notify_frame_complete (CoglOnscreen *onscreen)
@@ -1833,10 +1832,10 @@ index 35ac9c0369..4cc0eb8916 100644
 GitLab
 
 
-From b86d9e8e4da54dc6d6501ba81d0b18dd1524c807 Mon Sep 17 00:00:00 2001
+From c46550e00ae1cbd23e84806df66205da7a1d7fae Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 16 Sep 2021 16:26:25 +0800
-Subject: [PATCH 20/46] onscreen/native: Deduplicate calls to
+Subject: [PATCH 20/47] onscreen/native: Deduplicate calls to
  clutter_frame_set_result
 
 All paths out of `meta_onscreen_native_swap_buffers_with_damage` from
@@ -1851,10 +1850,10 @@ Even failed posts set this result because they will do a
  1 file changed, 3 insertions(+), 14 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 4cc0eb8916..7adfe8c280 100644
+index ee1e5de028..a35afa42a7 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -1126,6 +1126,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1125,6 +1125,9 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
  #endif
      }
  
@@ -1864,7 +1863,7 @@ index 4cc0eb8916..7adfe8c280 100644
    /*
     * If we changed EGL context, cogl will have the wrong idea about what is
     * current, making it fail to set it when it needs to. Avoid that by making
-@@ -1150,8 +1153,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1149,8 +1152,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      {
        meta_renderer_native_queue_power_save_page_flip (renderer_native,
                                                         onscreen);
@@ -1873,7 +1872,7 @@ index 4cc0eb8916..7adfe8c280 100644
        return;
      }
  
-@@ -1169,9 +1170,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1168,9 +1169,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                        "Postponing primary plane composite update for CRTC %u (%s)",
                        meta_kms_crtc_get_id (kms_crtc),
                        meta_kms_device_get_path (kms_device));
@@ -1883,7 +1882,7 @@ index 4cc0eb8916..7adfe8c280 100644
            return;
          }
        else if (meta_renderer_native_has_pending_mode_set (renderer_native))
-@@ -1181,8 +1179,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1180,8 +1178,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
  
            meta_renderer_native_notify_mode_sets_reset (renderer_native);
            meta_renderer_native_post_mode_set_updates (renderer_native);
@@ -1892,7 +1891,7 @@ index 4cc0eb8916..7adfe8c280 100644
            return;
          }
        break;
-@@ -1195,8 +1191,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1194,8 +1190,6 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
          {
            meta_renderer_native_notify_mode_sets_reset (renderer_native);
            meta_renderer_native_post_mode_set_updates (renderer_native);
@@ -1901,7 +1900,7 @@ index 4cc0eb8916..7adfe8c280 100644
            return;
          }
        break;
-@@ -1214,13 +1208,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1213,13 +1207,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    switch (meta_kms_feedback_get_result (kms_feedback))
      {
      case META_KMS_FEEDBACK_PASSED:
@@ -1919,10 +1918,10 @@ index 4cc0eb8916..7adfe8c280 100644
 GitLab
 
 
-From 1131457f303e090bdf079f56143872523bfa03c1 Mon Sep 17 00:00:00 2001
+From cfde06dc84f73a9e910cf874d0d9efab956c79a6 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 28 Jul 2021 16:29:27 +0800
-Subject: [PATCH 21/46] onscreen/native: Split swap_buffers_with_damage into
+Subject: [PATCH 21/47] onscreen/native: Split swap_buffers_with_damage into
  two functions
 
 1. The EGL part: meta_onscreen_native_swap_buffers_with_damage
@@ -1932,7 +1931,7 @@ Subject: [PATCH 21/46] onscreen/native: Split swap_buffers_with_damage into
  1 file changed, 46 insertions(+), 14 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 7adfe8c280..065ac957e6 100644
+index a35afa42a7..0849b4c8f1 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -105,11 +105,19 @@ struct _MetaOnscreenNative
@@ -1955,7 +1954,7 @@ index 7adfe8c280..065ac957e6 100644
  static gboolean
  init_secondary_gpu_state (MetaRendererNative  *renderer_native,
                            CoglOnscreen        *onscreen,
-@@ -1003,29 +1011,18 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1008,29 +1016,18 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    CoglRendererEGL *cogl_renderer_egl = cogl_renderer->winsys;
    MetaRendererNativeGpuData *renderer_gpu_data = cogl_renderer_egl->platform;
    MetaRendererNative *renderer_native = renderer_gpu_data->renderer_native;
@@ -1986,7 +1985,7 @@ index 7adfe8c280..065ac957e6 100644
  
    COGL_TRACE_BEGIN_SCOPED (MetaRendererNativeSwapBuffers,
                             "Onscreen (swap-buffers)");
-@@ -1138,6 +1135,39 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1137,6 +1134,39 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    if (egl_context_changed)
      _cogl_winsys_egl_ensure_current (cogl_display);
  
@@ -2026,7 +2025,7 @@ index 7adfe8c280..065ac957e6 100644
    power_save_mode = meta_monitor_manager_get_power_save_mode (monitor_manager);
    if (power_save_mode == META_POWER_SAVE_ON)
      {
-@@ -1146,8 +1176,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1145,8 +1175,8 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
                                        onscreen_native->view,
                                        onscreen_native->crtc,
                                        META_KMS_PAGE_FLIP_LISTENER_FLAG_NONE,
@@ -2037,7 +2036,7 @@ index 7adfe8c280..065ac957e6 100644
      }
    else
      {
-@@ -2201,6 +2231,8 @@ meta_onscreen_native_dispose (GObject *object)
+@@ -2200,6 +2230,8 @@ meta_onscreen_native_dispose (GObject *object)
    g_clear_pointer (&onscreen_native->gbm.surface, gbm_surface_destroy);
    g_clear_pointer (&onscreen_native->secondary_gpu_state,
                     secondary_gpu_state_free);
@@ -2050,10 +2049,10 @@ index 7adfe8c280..065ac957e6 100644
 GitLab
 
 
-From b78a1ed042deb5bd031966af01cd5c6bd860a63d Mon Sep 17 00:00:00 2001
+From 97d0a48f6a0644ba584c696800a9a91bc5d84aa4 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 12 Aug 2021 18:28:57 +0800
-Subject: [PATCH 22/46] onscreen/native: Warn instead of crashing if posting
+Subject: [PATCH 22/47] onscreen/native: Warn instead of crashing if posting
  without an update
 
 ---
@@ -2061,10 +2060,10 @@ Subject: [PATCH 22/46] onscreen/native: Warn instead of crashing if posting
  1 file changed, 1 insertion(+)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 065ac957e6..5c8d888e16 100644
+index 0849b4c8f1..39f603fbf1 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -1234,6 +1234,7 @@ post_latest_swap (CoglOnscreen *onscreen)
+@@ -1233,6 +1233,7 @@ post_latest_swap (CoglOnscreen *onscreen)
  
    flags = META_KMS_UPDATE_FLAG_NONE;
    kms_feedback = meta_kms_post_pending_update_sync (kms, kms_device, flags);
@@ -2076,10 +2075,10 @@ index 065ac957e6..5c8d888e16 100644
 GitLab
 
 
-From 86bac209a4cd99c03ea6e07b98cb95fd1b48e5ec Mon Sep 17 00:00:00 2001
+From 77a5e87df7e7229605fae0532d5f98c5983a9726 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 28 Oct 2021 17:24:11 +0800
-Subject: [PATCH 23/46] onscreen/native: Add a missing frame notification
+Subject: [PATCH 23/47] onscreen/native: Add a missing frame notification
 
 In the unlikely event that swap_buffers_with_damage drops the previous swap
 it was forgetting to notify about the discarded frame. That could lead to
@@ -2089,10 +2088,10 @@ frame clock freezes.
  1 file changed, 9 insertions(+)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 5c8d888e16..ba181253e2 100644
+index 39f603fbf1..264228aaca 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -1102,6 +1102,15 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1101,6 +1101,15 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
      {
      case META_RENDERER_NATIVE_MODE_GBM:
        g_warn_if_fail (onscreen_native->gbm.next_fb == NULL);
@@ -2112,10 +2111,10 @@ index 5c8d888e16..ba181253e2 100644
 GitLab
 
 
-From 29c108a5f7ee984b42cdff995e1a11155c9edf0f Mon Sep 17 00:00:00 2001
+From 50ff67a5ec0f80f8a30d598a027d963dae731835 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 17 Sep 2021 17:59:28 +0800
-Subject: [PATCH 24/46] onscreen/native: Defer posting if there's already a
+Subject: [PATCH 24/47] onscreen/native: Defer posting if there's already a
  post in progress
 
 And when the number of pending posts decreases we know it's safe to submit
@@ -2126,7 +2125,7 @@ a new one. Since KMS generally only supports one outstanding post right now,
  1 file changed, 70 insertions(+), 13 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index ba181253e2..e64b29bbcb 100644
+index 264228aaca..c82b3db477 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -94,6 +94,7 @@ struct _MetaOnscreenNative
@@ -2223,7 +2222,7 @@ index ba181253e2..e64b29bbcb 100644
  static void
  meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
                                  MetaRendererView            *view,
-@@ -1101,14 +1127,13 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1100,14 +1126,13 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    switch (renderer_gpu_data->mode)
      {
      case META_RENDERER_NATIVE_MODE_GBM:
@@ -2243,7 +2242,7 @@ index ba181253e2..e64b29bbcb 100644
          }
  
        if (onscreen_native->secondary_gpu_state)
-@@ -1150,11 +1175,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
+@@ -1149,11 +1174,12 @@ meta_onscreen_native_swap_buffers_with_damage (CoglOnscreen  *onscreen,
    memcpy (onscreen_native->next_post.rectangles, rectangles, rectangles_size);
    onscreen_native->next_post.n_rectangles = n_rectangles;
  
@@ -2258,7 +2257,7 @@ index ba181253e2..e64b29bbcb 100644
  {
    CoglFramebuffer *framebuffer = COGL_FRAMEBUFFER (onscreen);
    CoglContext *cogl_context = cogl_framebuffer_get_context (framebuffer);
-@@ -1176,10 +1202,26 @@ post_latest_swap (CoglOnscreen *onscreen)
+@@ -1175,10 +1201,26 @@ post_latest_swap (CoglOnscreen *onscreen)
    MetaKmsUpdateFlag flags;
    g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
    const GError *feedback_error;
@@ -2285,7 +2284,7 @@ index ba181253e2..e64b29bbcb 100644
        ensure_crtc_modes (onscreen);
        meta_onscreen_native_flip_crtc (onscreen,
                                        onscreen_native->view,
-@@ -1336,6 +1378,18 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
+@@ -1335,6 +1377,18 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
        return FALSE;
      }
  
@@ -2304,7 +2303,7 @@ index ba181253e2..e64b29bbcb 100644
    renderer_gpu_data = meta_renderer_native_get_gpu_data (renderer_native,
                                                           render_gpu);
  
-@@ -1437,6 +1491,9 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
+@@ -1436,6 +1490,9 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
    g_autoptr (MetaKmsFeedback) kms_feedback = NULL;
    const GError *error;
  
@@ -2318,10 +2317,10 @@ index ba181253e2..e64b29bbcb 100644
 GitLab
 
 
-From 1bc9a6cbba6171ce7f5f495b5f7ff2f2fca43d50 Mon Sep 17 00:00:00 2001
+From 13e49ded17400068f86e30f349ac87d7771c8d7a Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 2 Nov 2021 19:04:04 +0800
-Subject: [PATCH 25/46] onscreen/native: Keep a reference to the CRTC used
+Subject: [PATCH 25/47] onscreen/native: Keep a reference to the CRTC used
 
 Otherwise it may get destroyed during hotplug events. Meanwhile we're
 still active and might try using it in the next/final frame notification
@@ -2331,10 +2330,10 @@ callbacks.
  1 file changed, 2 insertions(+), 1 deletion(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index e64b29bbcb..7bf48ecf69 100644
+index c82b3db477..481e564de2 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -2247,7 +2247,7 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
+@@ -2246,7 +2246,7 @@ meta_onscreen_native_new (MetaRendererNative *renderer_native,
    onscreen_native->renderer_native = renderer_native;
    onscreen_native->render_gpu = render_gpu;
    onscreen_native->output = output;
@@ -2343,7 +2342,7 @@ index e64b29bbcb..7bf48ecf69 100644
  
    return onscreen_native;
  }
-@@ -2295,6 +2295,7 @@ meta_onscreen_native_dispose (GObject *object)
+@@ -2294,6 +2294,7 @@ meta_onscreen_native_dispose (GObject *object)
  
    G_OBJECT_CLASS (meta_onscreen_native_parent_class)->dispose (object);
  
@@ -2355,10 +2354,10 @@ index e64b29bbcb..7bf48ecf69 100644
 GitLab
 
 
-From 23f47d39c8c75f12df648fac95bdfc55e220b53c Mon Sep 17 00:00:00 2001
+From f9b8f198e4224adfe7c2d2a7e45fb7396d610dc1 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 4 Nov 2021 16:09:26 +0800
-Subject: [PATCH 26/46] onscreen/native: Add function
+Subject: [PATCH 26/47] onscreen/native: Add function
  meta_onscreen_native_discard_pending_swaps
 
 ---
@@ -2367,10 +2366,10 @@ Subject: [PATCH 26/46] onscreen/native: Add function
  2 files changed, 13 insertions(+)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index 7bf48ecf69..c1fbd82789 100644
+index 481e564de2..8bb232999d 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
-@@ -1533,6 +1533,17 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
+@@ -1532,6 +1532,17 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
      }
  }
  
@@ -2405,10 +2404,10 @@ index 3a85ace267..676c4c4459 100644
 GitLab
 
 
-From 2621661f624940ed8ef2d384357c50a0fc62904e Mon Sep 17 00:00:00 2001
+From 3c0963c5aac996a1cc4f38170658f6b5893e312e Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 4 Nov 2021 16:09:52 +0800
-Subject: [PATCH 27/46] renderer/native: Discard pending swaps when rebuilding
+Subject: [PATCH 27/47] renderer/native: Discard pending swaps when rebuilding
  views
 
 It's analogous to discard_pending_page_flips but represents swaps that
@@ -2464,10 +2463,10 @@ index e15f96e2ad..d896114624 100644
 GitLab
 
 
-From 2acd5c8eb5f5d038422c4c8ad6eecebd0407021b Mon Sep 17 00:00:00 2001
+From b13cb254848b526706c1dec98b03b6b4748e00e6 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 10 Aug 2021 17:46:49 +0800
-Subject: [PATCH 28/46] clutter/frame-clock: Lower the threshold for disabling
+Subject: [PATCH 28/47] clutter/frame-clock: Lower the threshold for disabling
  error diffusion
 
 Error diffusion was introduced in 0555a5bbc15 for Nvidia where last
@@ -2513,10 +2512,10 @@ index 6fa2b25887..bf6cf3ef4c 100644
 GitLab
 
 
-From 373d35d30d8bcdd7576f7c488361de82ad8b83d9 Mon Sep 17 00:00:00 2001
+From fbef38f639331574c597b0038b07cab665d202c8 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 24 Jul 2020 14:13:11 +0800
-Subject: [PATCH 29/46] clutter/frame-clock: Merge states DISPATCHING and
+Subject: [PATCH 29/47] clutter/frame-clock: Merge states DISPATCHING and
  PENDING_PRESENTED
 
 Chronologically they already overlap in time as presentation may
@@ -2631,10 +2630,10 @@ index bf6cf3ef4c..26f2f681e5 100644
 GitLab
 
 
-From 2429a49d891ce365337be24d3d217430ee6f87d9 Mon Sep 17 00:00:00 2001
+From 2dee28825620e8e6b82ed630b0195d51e4305bf5 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 10 Sep 2020 16:34:53 +0800
-Subject: [PATCH 30/46] clutter/frame-clock: Add triple buffering support
+Subject: [PATCH 30/47] clutter/frame-clock: Add triple buffering support
 
 ---
  clutter/clutter/clutter-frame-clock.c | 101 ++++++++++++++++++++------
@@ -2845,10 +2844,10 @@ index 26f2f681e5..cacd4f6362 100644
 GitLab
 
 
-From 73b8ddd454bd6d987c9ffe48d15643cb7cc81a49 Mon Sep 17 00:00:00 2001
+From f60f9f4deb4032be736a009c06d8bed614647c09 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 10 Dec 2021 16:28:04 +0800
-Subject: [PATCH 31/46] clutter/frame-clock: Log N-buffers in
+Subject: [PATCH 31/47] clutter/frame-clock: Log N-buffers in
  CLUTTTER_DEBUG=frame-timings
 
 ---
@@ -2895,10 +2894,10 @@ index cacd4f6362..e97c6f2ad4 100644
 GitLab
 
 
-From fbfe76afa34a79785f3c082940b076d663ee538e Mon Sep 17 00:00:00 2001
+From 6822bfd98d9dd57cf6cad0229eb0fe1fb7c1ce49 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Mon, 13 Dec 2021 17:03:44 +0800
-Subject: [PATCH 32/46] clutter/frame-clock: Don't clamp
+Subject: [PATCH 32/47] clutter/frame-clock: Don't clamp
  compute_max_render_time_us
 
 Because values over refresh_interval_us are real and valid. They
@@ -2924,10 +2923,10 @@ index e97c6f2ad4..ade6f2e4a5 100644
 GitLab
 
 
-From 5901e879881061060d7e2345b39ffce6a48c75ca Mon Sep 17 00:00:00 2001
+From bf11b65447b3a080279c422ca04a0ce370de0938 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 17 Feb 2022 15:54:57 +0800
-Subject: [PATCH 33/46] clutter/frame-clock: Subtract buffer queue latency from
+Subject: [PATCH 33/47] clutter/frame-clock: Subtract buffer queue latency from
  max_swap_to_flip_us
 
 swap_to_flip times were getting stuck at over one frame interval
@@ -2993,10 +2992,10 @@ index ade6f2e4a5..cc4ac21c24 100644
 GitLab
 
 
-From 409e15d6ef4c393a9735ef00fa5dbc5a7cd764e7 Mon Sep 17 00:00:00 2001
+From 4e9c4e2d6d049dcf81c6141204ecfbf4791fba58 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 7 Sep 2021 19:08:15 +0800
-Subject: [PATCH 34/46] clutter/frame: Add ClutterFrameHint to ClutterFrame
+Subject: [PATCH 34/47] clutter/frame: Add ClutterFrameHint to ClutterFrame
 
 This will allow the backend to provide performance hints to the frame
 clock in future.
@@ -3077,10 +3076,10 @@ index d3608e81ca..06c5f7f28a 100644
 GitLab
 
 
-From f02fa5e40b7c55cc389695fc2c363112b7cf3080 Mon Sep 17 00:00:00 2001
+From e131b654989d4484017f7b95d66c4145d177e125 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 7 Sep 2021 19:10:26 +0800
-Subject: [PATCH 35/46] backends: Flag that the frame attempted direct scanout
+Subject: [PATCH 35/47] backends: Flag that the frame attempted direct scanout
 
 We need this hint whether direct scanout succeeds or fails because it's
 the mechanism by which we will tell the clock to enforce double buffering,
@@ -3107,10 +3106,10 @@ index c45aaf852e..683f4ff6c5 100644
 GitLab
 
 
-From 202691c97efcb5df475c5e4bb6f9b1af281d745d Mon Sep 17 00:00:00 2001
+From a893d265083afc8c579723d64189b585e98c465d Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 7 Sep 2021 19:15:18 +0800
-Subject: [PATCH 36/46] clutter: Pass ClutterFrameHint(s) to the frame clock
+Subject: [PATCH 36/47] clutter: Pass ClutterFrameHint(s) to the frame clock
 
 ---
  clutter/clutter/clutter-frame-clock.c | 8 ++++++--
@@ -3182,10 +3181,10 @@ index 2e47237f0a..8f5e896d01 100644
 GitLab
 
 
-From 4851df7cf80fac97b967a5703497c416d4cc77dd Mon Sep 17 00:00:00 2001
+From f39071b01505ec56d5b3b69b25939c622e9f601a Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Tue, 7 Sep 2021 19:15:55 +0800
-Subject: [PATCH 37/46] clutter/frame-clock: Throttle back to double buffering
+Subject: [PATCH 37/47] clutter/frame-clock: Throttle back to double buffering
  for direct scanout
 
 There's no compositing during direct scanout so the "render" time is zero.
@@ -3217,10 +3216,10 @@ index 577f10ee71..57176b3763 100644
 GitLab
 
 
-From 4a7d3b6a46b187437db7d79176dbda9333112ccf Mon Sep 17 00:00:00 2001
+From 1d7d689bb2d2eac416033b5e2cd3dd305234d6fd Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Thu, 10 Mar 2022 16:44:14 +0800
-Subject: [PATCH 38/46] clutter/frame-clock: Add env var
+Subject: [PATCH 38/47] clutter/frame-clock: Add env var
  MUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING
 
 You can set environment variable MUTTER_DEBUG_DISABLE_TRIPLE_BUFFERING=1
@@ -3267,10 +3266,10 @@ index 57176b3763..7a6444ec44 100644
 GitLab
 
 
-From a19518fb266653f29be7c503fc260007f1b1dd65 Mon Sep 17 00:00:00 2001
+From f2d8ddb347688be17597c1b054f185bfe539c440 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 20 Apr 2022 18:33:43 +0800
-Subject: [PATCH 39/46] kms: Fail post_update if shutdown has commenced
+Subject: [PATCH 39/47] kms: Fail post_update if shutdown has commenced
 
 This is necessary with triple buffering because flush_callbacks can
 result in new callbacks being queued, and we would fail the assertion
@@ -3318,10 +3317,10 @@ index 052ec8a65c..0fc659a4b2 100644
 GitLab
 
 
-From 390f81e44be685a218b14e08ce37310711078a4a Mon Sep 17 00:00:00 2001
+From 6b1cf74b93aa4c582d14658d6fa03f7ca5e2fa69 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 22 Sep 2021 17:01:42 +0800
-Subject: [PATCH 40/46] kms: Keep a hash table of CRTCs relating to the
+Subject: [PATCH 40/47] kms: Keep a hash table of CRTCs relating to the
  KmsUpdate
 
 This will allow more efficient lookup than linear searching each of
@@ -3398,10 +3397,10 @@ index 2889338ec5..e461334f87 100644
 GitLab
 
 
-From 8b01e9313f988246ce988dcdd0d6178741bd643e Mon Sep 17 00:00:00 2001
+From 2d48ae9b1a601fc93833925bf13e016d88d19b74 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 13 Apr 2022 18:07:44 +0800
-Subject: [PATCH 41/46] kms: Map ensure_connector_update to a specific CRTC if
+Subject: [PATCH 41/47] kms: Map ensure_connector_update to a specific CRTC if
  active
 
 Otherwise the connector update gets orphaned and never committed:
@@ -3462,10 +3461,10 @@ index e461334f87..c00c66717b 100644
 GitLab
 
 
-From 8a419ac42c13091e157fa6f9ca618a0ece12e5a5 Mon Sep 17 00:00:00 2001
+From c1f34bc212e0b268300da97a39c67a346db037ae Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 22 Sep 2021 17:19:45 +0800
-Subject: [PATCH 42/46] kms: Add functions meta_kms_update_include[s]_crtc()
+Subject: [PATCH 42/47] kms: Add functions meta_kms_update_include[s]_crtc()
 
 ---
  src/backends/native/meta-kms-update-private.h |  6 ++++++
@@ -3518,10 +3517,10 @@ index c00c66717b..0d457c49e6 100644
 GitLab
 
 
-From 46c77d608b507d1d86c599e66d90df1fba3cdd96 Mon Sep 17 00:00:00 2001
+From ff2468ac15f8de1977ef9a15edb61952d50bf7c3 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Wed, 22 Sep 2021 18:13:54 +0800
-Subject: [PATCH 43/46] kms: Add per-CRTC update functions
+Subject: [PATCH 43/47] kms: Add per-CRTC update functions
 
 ---
  src/backends/native/meta-kms.c | 103 +++++++++++++++++++++++++++++++--
@@ -3704,10 +3703,10 @@ index bd9fe5cead..84f1bed498 100644
 GitLab
 
 
-From 3ffcaca740b6d397b1ef934ebaa20508101c3aaf Mon Sep 17 00:00:00 2001
+From e2a5eb3ab15db4a226535badcbe37ee2576efe4a Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 28 Jan 2022 15:46:09 +0800
-Subject: [PATCH 44/46] cursor-renderer/native: Use CRTC-specific update
+Subject: [PATCH 44/47] cursor-renderer/native: Use CRTC-specific update
  retrieval
 
 ---
@@ -3742,10 +3741,10 @@ index e51d182ba7..f80f31a93d 100644
 GitLab
 
 
-From 24a0c49b459633a0d17ea9fd94dd5a07bdd94c4e Mon Sep 17 00:00:00 2001
+From 8230bfb9e583a3a57024f104e4d154868cbc222d Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 28 Jan 2022 15:50:24 +0800
-Subject: [PATCH 45/46] crtc/native: Use CRTC-specific update retrieval
+Subject: [PATCH 45/47] crtc/native: Use CRTC-specific update retrieval
 
 ---
  src/backends/native/meta-crtc-kms.c | 2 +-
@@ -3768,10 +3767,10 @@ index ad72dba645..24e9b0a6a4 100644
 GitLab
 
 
-From a4dbd8882508f0344e1d80df1940c5a084ce57d4 Mon Sep 17 00:00:00 2001
+From 597542644c87e9ce8ebe7621182cc76491b277d5 Mon Sep 17 00:00:00 2001
 From: Daniel van Vugt <daniel.van.vugt@canonical.com>
 Date: Fri, 28 Jan 2022 16:35:42 +0800
-Subject: [PATCH 46/46] onscreen/native: Use CRTC-specific update retrieval
+Subject: [PATCH 46/47] onscreen/native: Use CRTC-specific update retrieval
 
 For mode setting we want all CRTCs to share the same MetaKmsUpdate, but
 after that we don't want them to share the same update for regular flips
@@ -3799,7 +3798,7 @@ trying to commit a cursor update on the wrong (busy) CRTC.
  1 file changed, 12 insertions(+), 8 deletions(-)
 
 diff --git a/src/backends/native/meta-onscreen-native.c b/src/backends/native/meta-onscreen-native.c
-index c1fbd82789..fbe3e26ca8 100644
+index 8bb232999d..dd2dc98d1e 100644
 --- a/src/backends/native/meta-onscreen-native.c
 +++ b/src/backends/native/meta-onscreen-native.c
 @@ -423,7 +423,7 @@ meta_onscreen_native_flip_crtc (CoglOnscreen                *onscreen,
@@ -3811,7 +3810,7 @@ index c1fbd82789..fbe3e26ca8 100644
  
    g_assert (meta_gpu_kms_is_crtc_active (gpu_kms, crtc));
  
-@@ -478,7 +478,7 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
+@@ -483,7 +483,7 @@ meta_onscreen_native_set_crtc_mode (CoglOnscreen              *onscreen,
    COGL_TRACE_BEGIN_SCOPED (MetaOnscreenNativeSetCrtcModes,
                             "Onscreen (set CRTC modes)");
  
@@ -3820,7 +3819,7 @@ index c1fbd82789..fbe3e26ca8 100644
  
    switch (renderer_gpu_data->mode)
      {
-@@ -1284,7 +1284,9 @@ try_post_latest_swap (CoglOnscreen *onscreen)
+@@ -1283,7 +1283,9 @@ try_post_latest_swap (CoglOnscreen *onscreen)
                meta_kms_device_get_path (kms_device));
  
    flags = META_KMS_UPDATE_FLAG_NONE;
@@ -3831,7 +3830,7 @@ index c1fbd82789..fbe3e26ca8 100644
    g_return_if_fail (kms_feedback != NULL);
  
    switch (meta_kms_feedback_get_result (kms_feedback))
-@@ -1442,7 +1444,9 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
+@@ -1441,7 +1443,9 @@ meta_onscreen_native_direct_scanout (CoglOnscreen   *onscreen,
                meta_kms_device_get_path (kms_device));
  
    flags = META_KMS_UPDATE_FLAG_PRESERVE_ON_ERROR;
@@ -3842,7 +3841,7 @@ index c1fbd82789..fbe3e26ca8 100644
    switch (meta_kms_feedback_get_result (kms_feedback))
      {
      case META_KMS_FEEDBACK_PASSED:
-@@ -1494,7 +1498,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
+@@ -1493,7 +1497,7 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
    if (cogl_onscreen_count_pending_frames (onscreen) > 0)
      return;
  
@@ -3851,7 +3850,7 @@ index c1fbd82789..fbe3e26ca8 100644
    if (!kms_update)
      {
        clutter_frame_set_result (frame, CLUTTER_FRAME_RESULT_IDLE);
-@@ -1509,9 +1513,9 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
+@@ -1508,9 +1512,9 @@ meta_onscreen_native_finish_frame (CoglOnscreen *onscreen,
                                            g_object_unref);
  
    flags = META_KMS_UPDATE_FLAG_NONE;
@@ -3864,6 +3863,34 @@ index c1fbd82789..fbe3e26ca8 100644
    switch (meta_kms_feedback_get_result (kms_feedback))
      {
      case META_KMS_FEEDBACK_PASSED:
+-- 
+GitLab
+
+
+From 6d527d8243ddd2aed80205a1538764a5ac32b17c Mon Sep 17 00:00:00 2001
+From: Daniel van Vugt <daniel.van.vugt@canonical.com>
+Date: Thu, 8 Sep 2022 16:45:29 +0800
+Subject: [PATCH 47/47] kms: Avoid queuing multiple (un)assignments to the same
+ plane in an update
+
+Just like we already do in `meta_kms_update_assign_plane`.
+---
+ src/backends/native/meta-kms-update.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/backends/native/meta-kms-update.c b/src/backends/native/meta-kms-update.c
+index 0d457c49e6..5327a72475 100644
+--- a/src/backends/native/meta-kms-update.c
++++ b/src/backends/native/meta-kms-update.c
+@@ -256,6 +256,8 @@ meta_kms_update_unassign_plane (MetaKmsUpdate *update,
+   g_assert (meta_kms_crtc_get_device (crtc) == update->device);
+   g_assert (meta_kms_plane_get_device (plane) == update->device);
+ 
++  drop_plane_assignment (update, plane, NULL);
++
+   plane_assignment = g_new0 (MetaKmsPlaneAssignment, 1);
+   *plane_assignment = (MetaKmsPlaneAssignment) {
+     .update = update,
 -- 
 GitLab
 
