@@ -39,6 +39,9 @@ Patch200:      1441.patch
 # Upstream 44.x: wayland/surface: Avoid using buffers with unfinished client work, sub-surface fixes
 Patch201:      1880.patch
 
+# Upstream 44.x: wayland/transaction: Don't free queue node on tear down
+Patch202:      2805.patch
+
 BuildRequires: pkgconfig(gobject-introspection-1.0) >= 1.41.0
 BuildRequires: pkgconfig(sm)
 BuildRequires: pkgconfig(libwacom)

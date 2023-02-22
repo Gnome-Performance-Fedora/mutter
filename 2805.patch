@@ -1,0 +1,52 @@
+From 8abdbbdf242a2be934c6b5bbb2a0f29b23c224d6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Jonas=20=C3=85dahl?= <jadahl@gmail.com>
+Date: Wed, 25 Jan 2023 12:45:36 +0100
+Subject: [PATCH] wayland/transaction: Don't free queue node on tear down
+
+The GQueue node for transactions are inlined in the transaction struct,
+meaning we should never let the GQueue API free the node itself, as that
+actuall frees the transaction itself.
+
+We did this during tear down if there were left-over transactions,
+meaning we ended up with use-after-free issues after having popped
+transactions from the queue.
+
+Fix this by just popping the link itself, which won't attempt to free
+it. It is effectively freed when freeing the transaction itself so we
+won't leak any memory.
+
+Fixes: 56260e3e0726c970c572a339e18b1f6ebed3069c
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2805>
+---
+ src/wayland/meta-wayland-transaction.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
+
+diff --git a/src/wayland/meta-wayland-transaction.c b/src/wayland/meta-wayland-transaction.c
+index 7b9a5e9fe4..2de15a53f5 100644
+--- a/src/wayland/meta-wayland-transaction.c
++++ b/src/wayland/meta-wayland-transaction.c
+@@ -593,12 +593,18 @@ void
+ meta_wayland_transaction_finalize (MetaWaylandCompositor *compositor)
+ {
+   GQueue *transactions;
+-  MetaWaylandTransaction *transaction;
++  GList *node;
+ 
+   transactions = meta_wayland_compositor_get_committed_transactions (compositor);
+ 
+-  while ((transaction = g_queue_pop_head (transactions)))
+-    meta_wayland_transaction_free (transaction);
++  while ((node = g_queue_pop_head_link (transactions)))
++    {
++      MetaWaylandTransaction *transaction = node->data;
++
++      g_assert (node == &transaction->node);
++
++      meta_wayland_transaction_free (transaction);
++    }
+ }
+ 
+ void
+-- 
+GitLab
+
