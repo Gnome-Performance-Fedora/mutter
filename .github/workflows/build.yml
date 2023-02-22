@@ -28,6 +28,8 @@ jobs:
     - run: rpm --define "_gpg_name mail@ernestocastellotti.it" --define "_signature gpg" --addsign x86_64/*.rpm
 
     - run: git clone https://github.com/Gnome-Performance-Fedora/repo Gnome-Performance-Fedora-Repository
+    
+    - run: mkdir -p Gnome-Performance-Fedora-Repository/f${{ github.ref_name }}/packages
 
     - run: cp x86_64/*.rpm Gnome-Performance-Fedora-Repository/f${{ github.ref_name }}/packages
 
