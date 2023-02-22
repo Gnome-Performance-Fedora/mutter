@@ -33,6 +33,9 @@ Patch3:        0001-x11-Avoid-updating-focus-on-wayland-compositor.patch
 # Upstream 43.x: [43] wayland: Don't overwrite surface offsets
 Patch100:      2844.patch
 
+# Draft: Dynamic triple/double buffering (v4)
+Patch200:      1441.patch
+
 BuildRequires: pkgconfig(gobject-introspection-1.0) >= 1.41.0
 BuildRequires: pkgconfig(sm)
 BuildRequires: pkgconfig(libwacom)
