@@ -1,0 +1,193 @@
+From cf3016f01dd6cb99cfa921c13bb5a5d7fff378b6 Mon Sep 17 00:00:00 2001
+From: Erico Nunes <nunes.erico@gmail.com>
+Date: Tue, 16 Nov 2021 16:44:35 +0100
+Subject: [PATCH 1/3] cogl/framebuffer: Remove requirement to discard color
+ buffer
+
+cogl_framebuffer_discard_buffers required that the color buffer is
+passed, although users might want to discard e.g. just depth and/or
+stencil buffers.
+
+Signed-off-by: Erico Nunes <nunes.erico@gmail.com>
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2091>
+
+(cherry picked from commit 5fedd065c97a0d1ebba0062a8077a01a9bcf06b1)
+---
+ cogl/cogl/cogl-framebuffer.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/cogl/cogl/cogl-framebuffer.c b/cogl/cogl/cogl-framebuffer.c
+index d8ffbcd1ca..c01ef8d8e1 100644
+--- a/cogl/cogl/cogl-framebuffer.c
++++ b/cogl/cogl/cogl-framebuffer.c
+@@ -1695,8 +1695,6 @@ cogl_framebuffer_discard_buffers (CoglFramebuffer *framebuffer,
+   CoglFramebufferPrivate *priv =
+     cogl_framebuffer_get_instance_private (framebuffer);
+ 
+-  g_return_if_fail (buffers & COGL_BUFFER_BIT_COLOR);
+-
+   cogl_framebuffer_driver_discard_buffers (priv->driver, buffers);
+ }
+ 
+-- 
+GitLab
+
+
+From ea98d19f6135e024c978d1a29370c64da3cb93bb Mon Sep 17 00:00:00 2001
+From: Erico Nunes <nunes.erico@gmail.com>
+Date: Tue, 16 Nov 2021 16:44:39 +0100
+Subject: [PATCH 2/3] cogl/onscreen: Discard depth/stencil before swapping
+ buffers
+
+Marking the the depth/stencil as discarded before swapping buffers for
+the screen signals the GPU that we don't need to keep them around for
+the future.
+This helps performance by reducing memory bandwidth usage in some GPUs
+which may optimize to not write those buffers back to memory at all
+after rendering, when they would just be cleared right after that
+anyway.
+It is not necessary to mark buffers as discarded after swapping buffers.
+This should have no effect according to the spec (since that is going to
+be followed by new rendering commands which make the buffer valid again)
+and removing that has shown no impact in performance tests.
+
+Signed-off-by: Erico Nunes <nunes.erico@gmail.com>
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2091>
+
+(cherry picked from commit 523b27e2672efa1a2a1901fb6352e6c50f57f039)
+---
+ cogl/cogl/cogl-onscreen.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
+
+diff --git a/cogl/cogl/cogl-onscreen.c b/cogl/cogl/cogl-onscreen.c
+index ff9e1749a7..842ececf7f 100644
+--- a/cogl/cogl/cogl-onscreen.c
++++ b/cogl/cogl/cogl-onscreen.c
+@@ -334,17 +334,16 @@ cogl_onscreen_swap_buffers_with_damage (CoglOnscreen *onscreen,
+   if (G_UNLIKELY (COGL_DEBUG_ENABLED (COGL_DEBUG_SYNC_FRAME)))
+     cogl_framebuffer_finish (framebuffer);
+ 
++  cogl_framebuffer_discard_buffers (framebuffer,
++                                    COGL_BUFFER_BIT_DEPTH |
++                                    COGL_BUFFER_BIT_STENCIL);
++
+   klass->swap_buffers_with_damage (onscreen,
+                                    rectangles,
+                                    n_rectangles,
+                                    info,
+                                    user_data);
+ 
+-  cogl_framebuffer_discard_buffers (framebuffer,
+-                                    COGL_BUFFER_BIT_COLOR |
+-                                    COGL_BUFFER_BIT_DEPTH |
+-                                    COGL_BUFFER_BIT_STENCIL);
+-
+   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+     {
+       CoglFrameInfo *info;
+@@ -395,17 +394,16 @@ cogl_onscreen_swap_region (CoglOnscreen *onscreen,
+      COGL_WINSYS_FEATURE_SWAP_REGION */
+   g_return_if_fail (klass->swap_region);
+ 
++  cogl_framebuffer_discard_buffers (framebuffer,
++                                    COGL_BUFFER_BIT_DEPTH |
++                                    COGL_BUFFER_BIT_STENCIL);
++
+   klass->swap_region (onscreen,
+                       rectangles,
+                       n_rectangles,
+                       info,
+                       user_data);
+ 
+-  cogl_framebuffer_discard_buffers (framebuffer,
+-                                    COGL_BUFFER_BIT_COLOR |
+-                                    COGL_BUFFER_BIT_DEPTH |
+-                                    COGL_BUFFER_BIT_STENCIL);
+-
+   if (!_cogl_winsys_has_feature (COGL_WINSYS_FEATURE_SYNC_AND_COMPLETE_EVENT))
+     {
+       CoglFrameInfo *info;
+-- 
+GitLab
+
+
+From bb161e1a172e4d746a901f569bba1b18c39a825e Mon Sep 17 00:00:00 2001
+From: Robert Mader <robert.mader@collabora.com>
+Date: Mon, 20 Feb 2023 02:41:42 +0100
+Subject: [PATCH 3/3] stage-impl: Transform damage region before queuing
+
+In order to queue the right values for transformed `MetaRendererView`s.
+
+While on it ensure we query the framebuffers width/height only once,
+saving some cpu cycles.
+
+Closes https://gitlab.gnome.org/GNOME/mutter/-/issues/2557
+
+Part-of: <https://gitlab.gnome.org/GNOME/mutter/-/merge_requests/2860>
+
+(cherry picked from commit 943fcc7c1a5e9b7ca7cf815c9adbd35de6ab14b2)
+---
+ cogl/cogl/cogl-onscreen.h      |  3 +++
+ src/backends/meta-stage-impl.c | 14 ++++++++++++--
+ 2 files changed, 15 insertions(+), 2 deletions(-)
+
+diff --git a/cogl/cogl/cogl-onscreen.h b/cogl/cogl/cogl-onscreen.h
+index 6778934932..ad71fa8931 100644
+--- a/cogl/cogl/cogl-onscreen.h
++++ b/cogl/cogl/cogl-onscreen.h
+@@ -242,6 +242,9 @@ cogl_onscreen_get_buffer_age (CoglOnscreen *onscreen);
+  * This immediately queues state to OpenGL that will be used for the
+  * next swap.
+  * This needs to be called every frame.
++ *
++ * The expected values are independent of any viewport transforms applied to
++ * the framebuffer.
+  */
+ COGL_EXPORT void
+ cogl_onscreen_queue_damage_region (CoglOnscreen *onscreen,
+diff --git a/src/backends/meta-stage-impl.c b/src/backends/meta-stage-impl.c
+index ca6f1f44f4..25d240d810 100644
+--- a/src/backends/meta-stage-impl.c
++++ b/src/backends/meta-stage-impl.c
+@@ -214,6 +214,8 @@ queue_damage_region (ClutterStageWindow *stage_window,
+   g_autofree int *freeme = NULL;
+   CoglFramebuffer *framebuffer;
+   CoglOnscreen *onscreen;
++  int fb_width;
++  int fb_height;
+ 
+   if (cairo_region_is_empty (damage_region))
+     return;
+@@ -223,6 +225,8 @@ queue_damage_region (ClutterStageWindow *stage_window,
+     return;
+ 
+   onscreen = COGL_ONSCREEN (framebuffer);
++  fb_width = cogl_framebuffer_get_width (framebuffer);
++  fb_height = cogl_framebuffer_get_height (framebuffer);
+ 
+   n_rects = cairo_region_num_rectangles (damage_region);
+ 
+@@ -234,12 +238,18 @@ queue_damage_region (ClutterStageWindow *stage_window,
+   for (i = 0; i < n_rects; i++)
+     {
+       cairo_rectangle_int_t rect;
+-      int height = cogl_framebuffer_get_height (framebuffer);
+ 
+       cairo_region_get_rectangle (damage_region, i, &rect);
++
++      clutter_stage_view_transform_rect_to_onscreen (stage_view,
++                                                     &rect,
++                                                     fb_width,
++                                                     fb_height,
++                                                     &rect);
++
+       damage[i * 4] = rect.x;
+       /* y coordinate needs to be flipped for OpenGL */
+-      damage[i * 4 + 1] = height - rect.y - rect.height;
++      damage[i * 4 + 1] = fb_height - rect.y - rect.height;
+       damage[i * 4 + 2] = rect.width;
+       damage[i * 4 + 3] = rect.height;
+     }
+-- 
+GitLab
+
