@@ -12,7 +12,7 @@
 
 Name:          mutter
 Version:       43.3
-Release:       1000.gnomeperformance
+Release:       1001.gnomeperformance
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
