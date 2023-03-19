@@ -11,8 +11,8 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       43.3
-Release:       1002.gnomeperformance
+Version:       43.4
+Release:       1%{?dist}
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
@@ -27,8 +27,6 @@ Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 
 # https://bugzilla.redhat.com/show_bug.cgi?id=1936991
 Patch2:        mutter-42.alpha-disable-tegra.patch
-
-Patch3:        0001-x11-Avoid-updating-focus-on-wayland-compositor.patch
 
 # Upstream 43.x: [43] wayland: Don't overwrite surface offsets
 Patch100:      2844.patch
@@ -187,6 +185,9 @@ desktop-file-validate %{buildroot}/%{_datadir}/applications/%{name}.desktop
 %{_datadir}/mutter-%{mutter_api_version}/tests
 
 %changelog
+* Mon Mar 20 2023 Florian Müllner <fmuellner@redhat.com> - 43.4-1
+- Update to 43.4
+
 * Wed Feb 15 2023 Florian Müllner <fmuellner@redhat.com> - 43.3-2
 - Fix focus regression in 43.3
 
