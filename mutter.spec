@@ -28,9 +28,6 @@ Patch1:        0001-Revert-build-Do-not-provide-built-sources-as-libmutt.patch
 # https://bugzilla.redhat.com/show_bug.cgi?id=1936991
 Patch2:        mutter-42.alpha-disable-tegra.patch
 
-# Upstream 43.x: [43] wayland: Don't overwrite surface offsets
-Patch100:      2844.patch
-
 # Draft: Dynamic triple/double buffering (v4)
 Patch200:      1441.patch
 
