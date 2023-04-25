@@ -32,9 +32,6 @@ Patch2:        mutter-42.alpha-disable-tegra.patch
 # https://pagure.io/fedora-workstation/issue/79
 Patch3:        0001-place-Always-center-initial-setup-fedora-welcome.patch
 
-# Upstream 44.x: onscreen/native: Avoid freezing the frame clock on failed cursor commits
-Patch200:	2933.patch
-
 # Draft: Dynamic triple/double buffering (v4)
 Patch201:      1441.patch
 
