@@ -42,8 +42,6 @@ jobs:
       uses: actions-js/push@master
       with:
         github_token: ${{ secrets.GH_TOKEN }}
-        author_email: mail@ernestocastellotti.it
-        author_name: Ernesto Castellotti
         message: Update package ${{ github.event.repository.name }}
         directory: Gnome-Performance-Fedora-Repository
         repository: Gnome-Performance-Fedora/repo
