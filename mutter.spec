@@ -35,6 +35,9 @@ Patch3:        0001-place-Always-center-initial-setup-fedora-welcome.patch
 # Draft: Dynamic triple/double buffering (v4)
 Patch201:      1441.patch
 
+# Ubuntu patch: Add scaling support using randr under x11
+Patch202:      x11-Add-support-for-fractional-scaling-using-Randr.patch
+
 BuildRequires: pkgconfig(gobject-introspection-1.0) >= 1.41.0
 BuildRequires: pkgconfig(sm)
 BuildRequires: pkgconfig(libwacom)
@@ -163,6 +166,7 @@ the functionality of the installed %{name} package.
 %{_datadir}/GConf/gsettings/mutter-schemas.convert
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.gschema.xml
 %{_datadir}/glib-2.0/schemas/org.gnome.mutter.wayland.gschema.xml
+%{_datadir}/glib-2.0/schemas/org.gnome.mutter.x11.gschema.xml
 %{_datadir}/gnome-control-center/keybindings/50-mutter-*.xml
 %{_mandir}/man1/mutter.1*
 %{_udevrulesdir}/61-mutter.rules
