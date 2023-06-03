@@ -12,8 +12,8 @@
 %global tarball_version %%(echo %{version} | tr '~' '.')
 
 Name:          mutter
-Version:       44.1
-Release:       1002.gnomeperformance
+Version:       44.2
+Release:       %autorelease
 Summary:       Window and compositing manager based on Clutter
 
 License:       GPLv2+
